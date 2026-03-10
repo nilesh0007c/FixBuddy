@@ -1,0 +1,174 @@
+/* =============================================================
+   ServicesPage.css  —  FixBuddy / LocalServe  2026
+   ============================================================= */
+
+/* ── Page wrapper ── */
+.services-page {
+  max-width: var(--container);
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+/* ── Header + Search bar ── */
+.services-header { margin-bottom: var(--space-xl); }
+
+.services-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--gray-900);
+  margin-bottom: var(--space-md);
+}
+
+.search-bar { max-width: 560px; }
+
+.search-bar input {
+  width: 100%;
+  padding: 13px 20px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  font-size: 0.95rem;
+  outline: none;
+  background: var(--white);
+  font-family: var(--font-body);
+  color: var(--gray-800);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-bar input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+
+.search-bar input::placeholder { color: var(--gray-400); }
+
+/* ── Two-column layout ── */
+.services-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
+}
+
+/* ── Filters Sidebar ── */
+.filters-sidebar {
+  position: sticky;
+  top: var(--space-lg);
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.filters-sidebar h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: var(--space-md);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.filter-group { margin-bottom: var(--space-md); }
+
+.filter-group label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.filter-group select,
+.filter-group input[type="text"] {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  outline: none;
+  background: var(--white);
+  color: var(--gray-800);
+  font-family: var(--font-body);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.filter-group select:focus,
+.filter-group input[type="text"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+/* Checkbox label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--gray-700);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.checkbox-label:hover { color: var(--primary); }
+
+.checkbox-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.filters-sidebar .btn-outline {
+  width: 100%;
+  justify-content: center;
+  margin-top: var(--space-xs);
+}
+
+/* ── Provider Grid ── */
+.providers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  align-content: start;
+}
+
+/* ── Loading / Empty states ── */
+.loading-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl) 0;
+  color: var(--gray-400);
+}
+
+.loading-state .spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .services-layout { grid-template-columns: 1fr; }
+  .filters-sidebar { position: static; }
+}
+
+@media (max-width: 480px) {
+  .services-page { padding: var(--space-md); }
+  .providers-grid { grid-template-columns: 1fr; }
+}

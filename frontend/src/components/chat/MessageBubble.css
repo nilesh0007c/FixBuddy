@@ -1,0 +1,221 @@
+/* ============================================================
+   MessageBubble.css  —  FixBuddy / LocalServe  2026
+   ============================================================ */
+
+/* ── Row ── */
+.msg-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.msg-row.mine   { flex-direction: row-reverse; }
+.msg-row.theirs { flex-direction: row; }
+
+/* ── Avatar ── */
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--white);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 2px 6px rgba(37,99,235,.2);
+}
+
+.msg-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.msg-avatar-spacer { width: 32px; flex-shrink: 0; }
+
+/* ── Group ── */
+.msg-group {
+  display: flex;
+  flex-direction: column;
+  max-width: 72%;
+}
+
+.msg-row.mine .msg-group { align-items: flex-end; }
+
+/* ── Sender name ── */
+.msg-sender-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  margin-bottom: 3px;
+  padding-left: 4px;
+}
+
+/* ── Reply preview ── */
+.msg-reply-preview {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  background: var(--gray-100);
+  border-left: 3px solid var(--accent);
+  padding: 4px 10px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 4px;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.msg-reply-preview:hover { background: var(--gray-200); }
+
+/* ── Bubble ── */
+.msg-bubble {
+  padding: 9px 13px;
+  border-radius: 18px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  word-break: break-word;
+  position: relative;
+}
+
+.msg-bubble.mine {
+  background: linear-gradient(135deg, var(--primary-light), rgba(219,234,254,.85));
+  color: var(--primary-dark);
+  border-bottom-right-radius: 4px;
+  border: 1px solid rgba(37,99,235,.15);
+}
+
+.msg-bubble.theirs {
+  background: var(--white);
+  color: var(--gray-800);
+  border: 1px solid var(--gray-200);
+  border-bottom-left-radius: 4px;
+  box-shadow: var(--shadow-sm);
+}
+
+.msg-bubble.optimistic { opacity: 0.65; }
+
+.msg-bubble.image-only { padding: 4px; background: transparent; border: none; box-shadow: none; }
+
+/* ── Attachment: image ── */
+.file-img-wrap { position: relative; max-width: 240px; }
+
+.file-img-skeleton {
+  height: 140px;
+  background: var(--gray-100);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--gray-300);
+}
+
+.file-img-error {
+  font-size: 0.75rem;
+  color: var(--color-error);
+  padding: 8px;
+  background: var(--color-error-bg);
+  border-radius: var(--radius-sm);
+}
+
+.file-img-error a { color: var(--color-error); }
+
+.file-img {
+  max-width: 240px;
+  max-height: 300px;
+  border-radius: var(--radius-md);
+  cursor: zoom-in;
+  display: block;
+  box-shadow: var(--shadow-sm);
+}
+
+.file-img-label { font-size: 0.7rem; color: var(--gray-400); margin-top: 4px; padding: 0 2px; }
+
+/* ── Attachment: video ── */
+.file-video video { max-width: 240px; border-radius: var(--radius-md); display: block; }
+.file-video-label { font-size: 0.7rem; color: var(--gray-400); margin-top: 4px; }
+
+/* ── Attachment: audio ── */
+.file-audio audio { width: 220px; }
+.file-audio-label { font-size: 0.7rem; color: var(--gray-400); margin-top: 4px; }
+
+/* ── Attachment: document ── */
+.file-doc-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  border: 1.5px solid var(--gray-200);
+  background: var(--gray-50);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.file-doc-link:hover { background: var(--primary-light); border-color: var(--primary-border); }
+.file-doc-link.mine   { background: rgba(219,234,254,.6); border-color: rgba(37,99,235,.2); }
+.file-doc-link.theirs { background: var(--gray-50); }
+
+.file-doc-icon  { font-size: 1.5rem; flex-shrink: 0; }
+.file-doc-info  { flex: 1; min-width: 0; }
+.file-doc-name  { font-size: 0.85rem; font-weight: 600; color: var(--gray-900); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-doc-size  { font-size: 0.7rem; color: var(--gray-400); margin-top: 2px; }
+.file-doc-arrow { font-size: 1rem; color: var(--primary); flex-shrink: 0; }
+
+/* ── Delete button ── */
+.msg-delete-btn {
+  display: block;
+  margin-top: 5px;
+  background: none;
+  border: none;
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 0;
+  text-align: right;
+  font-family: var(--font-body);
+  transition: color var(--transition-fast);
+}
+
+.msg-delete-btn:hover { color: var(--color-error); }
+
+/* ── Meta row ── */
+.msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  color: var(--gray-400);
+  margin-top: 3px;
+  padding: 0 4px;
+}
+
+.msg-row.mine .msg-meta { flex-direction: row-reverse; }
+
+.msg-sending-label { font-style: italic; }
+
+.msg-status-seen      { color: var(--primary); font-size: 0.75rem; }
+.msg-status-delivered { color: var(--gray-400); font-size: 0.75rem; }
+.msg-status-sent      { color: var(--gray-400); font-size: 0.75rem; }
+
+.msg-reply-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--gray-400);
+  padding: 0 2px;
+  line-height: 1;
+  transition: color var(--transition-fast);
+}
+
+.msg-reply-btn:hover { color: var(--accent); }

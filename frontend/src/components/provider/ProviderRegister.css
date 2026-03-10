@@ -1,0 +1,90 @@
+/* =============================================================
+   ProviderRegister.css  —  FixBuddy / LocalServe  2026
+   ============================================================= */
+
+/* ── Page wrapper override ── */
+.auth-container-register {
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/* ── Registration card ── */
+.provider-register {
+  width: 100%;
+  max-width: 680px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--gray-200);
+}
+
+.provider-register-title {
+  font-family: var(--font-display);
+  color: var(--primary);
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 0.3rem;
+}
+
+/* ── Camera video preview ── */
+.camera-video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  border: 1.5px solid var(--gray-200);
+}
+
+/* ── Live selfie preview ── */
+.live-preview-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── ID proof preview ── */
+.id-preview-img {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── ID hint text ── */
+.id-hint {
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--gray-400);
+  line-height: 1.5;
+}
+
+/* ── Upload gallery label (acts as button) ── */
+.upload-gallery-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+/* ── Upload form row actions ── */
+.upload-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .provider-register {
+    padding: var(--space-lg) var(--space-md);
+  }
+}

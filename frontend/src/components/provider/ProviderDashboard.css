@@ -1,0 +1,90 @@
+/* =============================================================
+   ProviderDashboard.css  —  FixBuddy / LocalServe  2026
+   ============================================================= */
+
+/* ── Provider Register sub-card ── */
+.provider-register {
+  width: 100%;
+  max-width: 680px;
+  background: var(--white);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl) var(--space-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--gray-200);
+}
+
+.provider-register h1 {
+  font-family: var(--font-display);
+  color: var(--primary);
+  margin-bottom: 0.3rem;
+  font-size: 1.8rem;
+  letter-spacing: -0.025em;
+}
+
+/* ── Auth Container — Provider variant ── */
+.auth-container-provider {
+  align-items: flex-start;
+  padding: 2rem;
+}
+
+/* ── Camera / Upload previews ── */
+.upload-video {
+  width: 100%;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+}
+
+.upload-preview-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-preview-id {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--gray-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.upload-id-hint {
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--gray-500);
+}
+
+.upload-label-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+/* ── Dashboard booking card strip ── */
+.booking-status-strip-provider {
+  width: 5px;
+  flex-shrink: 0;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── Bill modal ── */
+.bill-modal-header { margin-bottom: var(--space-md); }
+
+.bill-modal-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+  font-weight: 800;
+}
+
+.bill-modal-header p {
+  color: var(--gray-400);
+  font-size: 0.82rem;
+}

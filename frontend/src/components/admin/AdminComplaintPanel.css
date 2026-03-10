@@ -1,0 +1,472 @@
+/* ============================================================
+   AdminComplaintPanel.css  —  FixBuddy / LocalServe  2026
+   ============================================================ */
+
+/* ── Page wrapper ── */
+.acp-page {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 2rem 1rem;
+}
+
+.acp-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.acp-header { margin-bottom: 1.75rem; }
+
+.acp-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: var(--gray-900);
+  letter-spacing: -0.025em;
+}
+
+.acp-header p {
+  font-size: 0.875rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+}
+
+/* ── Alert ── */
+.acp-alert {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.acp-alert.success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success-border);
+}
+
+.acp-alert.error {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  border-color: var(--color-error-border);
+}
+
+/* ── Analytics summary ── */
+.acp-analytics {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.acp-stat {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.5rem;
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.acp-stat:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.acp-stat-num {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.acp-stat-num.amber { color: var(--color-amber); }
+.acp-stat-num.green { color: var(--color-success); }
+
+.acp-stat-label {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+  margin-top: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Controls ── */
+.acp-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.acp-search {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  outline: none;
+  font-family: var(--font-body);
+  background: var(--white);
+  color: var(--gray-800);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.acp-search:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.acp-filter-sel {
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  background: var(--white);
+  cursor: pointer;
+  outline: none;
+  font-family: var(--font-body);
+  color: var(--gray-700);
+  transition: border-color var(--transition-fast);
+}
+
+.acp-filter-sel:focus { border-color: var(--primary); }
+
+.acp-refresh-btn {
+  padding: 10px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  color: var(--gray-600);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.acp-refresh-btn:hover {
+  background: var(--gray-50);
+  border-color: var(--gray-300);
+}
+
+/* ── Loading / empty states ── */
+.acp-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 14px;
+  color: var(--gray-400);
+  font-size: 0.875rem;
+}
+
+.acp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.acp-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  gap: 12px;
+}
+
+.acp-empty-icon { font-size: 3rem; opacity: 0.5; }
+
+.acp-empty-title {
+  font-size: 1rem;
+  color: var(--gray-400);
+  font-weight: 600;
+}
+
+/* ── Complaint card ── */
+.acp-complaint-card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1rem;
+  animation: acp-slide-in 0.35s ease both;
+  transition: box-shadow var(--transition-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.acp-complaint-card:hover { box-shadow: var(--shadow-md); }
+
+.acp-complaint-card.high-priority { border-color: rgba(220,38,38,.3); }
+
+@keyframes acp-slide-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Card strip (header bar) ── */
+.acp-card-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: var(--gray-50);
+  border-bottom: 1px solid var(--gray-200);
+  flex-wrap: wrap;
+}
+
+.acp-card-id {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gray-400);
+}
+
+.acp-high-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-error);
+  background: var(--color-error-bg);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.acp-status-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.acp-badge-pending  { background: var(--color-warning-bg);  color: var(--color-warning);  }
+.acp-badge-review   { background: var(--color-info-bg);     color: var(--color-info);     }
+.acp-badge-resolved { background: var(--color-success-bg);  color: var(--color-success);  }
+.acp-badge-rejected { background: var(--color-error-bg);    color: var(--color-error);    }
+
+.acp-card-date {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--gray-400);
+}
+
+/* ── Card body ── */
+.acp-card-body { padding: 1.1rem 1.25rem; }
+
+/* ── Parties ── */
+.acp-parties {
+  display: flex;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.acp-party { display: flex; align-items: center; gap: 10px; }
+
+.acp-party-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  font-family: var(--font-display);
+}
+
+.acp-party-avatar.user     { background: var(--color-info-bg);    color: var(--color-info);    }
+.acp-party-avatar.provider { background: var(--color-success-bg); color: var(--color-success); }
+
+.acp-party-role {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gray-400);
+}
+
+.acp-party-name  { font-size: 0.875rem; font-weight: 700; color: var(--gray-900); }
+.acp-party-email { font-size: 0.75rem; color: var(--gray-400); }
+
+/* ── Complaint content ── */
+.acp-cat-label {
+  display: inline-block;
+  background: var(--color-info-bg);
+  color: var(--color-info);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.acp-complaint-text {
+  font-size: 0.875rem;
+  color: var(--gray-700);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+/* ── Evidence images ── */
+.acp-evidence {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.acp-evidence-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--gray-200);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.acp-evidence-img:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+/* ── Admin reply section ── */
+.acp-reply-section {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 14px;
+}
+
+.acp-reply-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.acp-existing-reply {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  color: var(--gray-700);
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.acp-existing-reply small { opacity: 0.7; font-size: 0.7rem; }
+
+.acp-reply-msg { font-size: 0.78rem; margin-bottom: 8px; font-weight: 600; }
+.acp-reply-msg.success { color: var(--color-success); }
+.acp-reply-msg.error   { color: var(--color-error); }
+
+.acp-reply-form { display: flex; flex-direction: column; gap: 8px; }
+
+.acp-reply-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-family: var(--font-body);
+  resize: vertical;
+  outline: none;
+  color: var(--gray-800);
+  background: var(--white);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.acp-reply-textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.acp-reply-actions { display: flex; gap: 8px; align-items: center; }
+
+.acp-status-sel {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  background: var(--white);
+  cursor: pointer;
+  outline: none;
+  font-family: var(--font-body);
+  color: var(--gray-700);
+}
+
+.acp-reply-btn {
+  padding: 8px 18px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-display);
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.acp-reply-btn:hover:not(:disabled) { background: var(--primary-dark); }
+
+.acp-reply-btn:disabled {
+  background: var(--gray-200);
+  color: var(--gray-400);
+  cursor: default;
+}
+
+/* ── Pagination ── */
+.acp-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 1.75rem;
+}
+
+.acp-page-btn {
+  padding: 7px 13px;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-body);
+  color: var(--gray-400);
+  transition: all var(--transition-fast);
+}
+
+.acp-page-btn:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.acp-page-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--white);
+}
+
+.acp-page-btn:disabled { opacity: 0.4; cursor: default; }

@@ -1,0 +1,186 @@
+/* ============================================================
+   ChatPage.css  —  FixBuddy / LocalServe  2026
+   ============================================================ */
+
+/* Root layout */
+.cp-root {
+  display: flex;
+  height: calc(100vh - 64px);
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Toggle button ── */
+.cp-toggle-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gray-600);
+  font-family: var(--font-body);
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.cp-toggle-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-border);
+  color: var(--primary);
+}
+
+.cp-toggle-icon {
+  display: inline-block;
+  transition: transform 0.25s;
+  font-size: 0.75rem;
+}
+
+.cp-toggle-btn.open .cp-toggle-icon       { transform: rotate(0deg); }
+.cp-toggle-btn:not(.open) .cp-toggle-icon { transform: rotate(180deg); }
+
+/* ── Sidebar ── */
+.cp-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border-right: 1.5px solid var(--gray-200);
+  transition: width 0.28s cubic-bezier(0.4,0,0.2,1), opacity 0.25s;
+  overflow: hidden;
+  padding-top: 48px;
+}
+
+.cp-sidebar.collapsed {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cp-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px 10px;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.cp-sidebar-icon { font-size: 1.2rem; }
+
+.cp-sidebar-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+/* ── Main panel ── */
+.cp-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: padding-left 0.28s cubic-bezier(0.4,0,0.2,1);
+  overflow: hidden;
+}
+
+/* ── Loading / error states ── */
+.cp-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  color: var(--gray-400);
+  font-size: 0.92rem;
+}
+
+.cp-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--gray-200);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+.cp-error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 24px;
+  color: var(--color-error);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+/* ── Placeholder ── */
+.cp-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  padding: 48px 32px;
+  text-align: center;
+  color: var(--gray-400);
+}
+
+.cp-placeholder-icon { font-size: 3rem; opacity: 0.5; }
+
+.cp-placeholder-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gray-700);
+}
+
+.cp-placeholder-sub {
+  margin: 0;
+  font-size: 0.875rem;
+  max-width: 300px;
+  line-height: 1.6;
+}
+
+.cp-placeholder-kbd {
+  display: inline-block;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
+  border-radius: var(--radius-sm);
+  padding: 1px 9px;
+  font-size: 0.8rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .cp-sidebar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 10;
+    box-shadow: 4px 0 24px rgba(0,0,0,.12);
+  }
+
+  .cp-main {
+    padding-left: 0 !important;
+    width: 100%;
+  }
+}

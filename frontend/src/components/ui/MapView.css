@@ -1,0 +1,38 @@
+/* ============================================================
+   MapView.css
+   ============================================================ */
+
+.map-view-container {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1.5px solid var(--gray-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Leaflet map container height */
+.map-view-container .leaflet-container {
+  height: 420px;
+  width: 100%;
+}
+
+/* ── Legend ── */
+.map-legend {
+  display: flex;
+  gap: 1.25rem;
+  padding: 10px 16px;
+  background: var(--white);
+  border-top: 1px solid var(--gray-border);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--gray);
+}
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .map-view-container .leaflet-container { height: 280px; }
+}

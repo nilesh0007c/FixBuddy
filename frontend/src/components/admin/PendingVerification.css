@@ -1,0 +1,107 @@
+/* ============================================================
+   PendingVerification.css  —  FixBuddy / LocalServe  2026
+   ============================================================ */
+
+/* ── Verification card ── */
+.verification-card {
+  background: var(--white);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.verification-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.verification-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--gray-100);
+  background: var(--gray-50);
+}
+
+.verification-card-info h3 {
+  margin: 0 0 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.verification-card-email {
+  color: var(--gray-500);
+  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
+}
+
+.verification-card-city {
+  color: var(--primary);
+  font-size: 0.875rem;
+  margin: 0 0 0.25rem;
+  font-weight: 500;
+}
+
+.verification-card-date {
+  color: var(--gray-400);
+  font-size: 0.775rem;
+  margin: 0;
+}
+
+.verification-card-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+/* ── Images ── */
+.verification-images {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.verification-img-box {
+  flex: 1;
+  min-width: 160px;
+}
+
+.verification-img-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.verification-img-box img {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gray-200);
+  object-fit: cover;
+  max-height: 200px;
+  transition: box-shadow var(--transition-base);
+}
+
+.verification-img-box img:hover { box-shadow: var(--shadow-md); }
+
+/* ── Bookings section wrapper ── */
+.bookings-section { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .verification-card-header { flex-direction: column; }
+  .verification-images { flex-direction: column; }
+}

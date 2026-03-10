@@ -1,0 +1,169 @@
+/* =============================================================
+   ProviderCard.css  —  FixBuddy / LocalServe  2026
+   ============================================================= */
+
+/* ── Card base ── */
+.provider-card {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+}
+
+.provider-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  border-color: rgba(37,99,235,.2);
+}
+
+/* ── Premium variant ── */
+.provider-card-premium {
+  border-color: #FBBF24;
+  box-shadow: 0 4px 20px rgba(251,191,36,.18);
+}
+
+.premium-strip {
+  background: linear-gradient(90deg, #F59E0B, #D97706);
+  color: var(--white);
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px;
+  text-transform: uppercase;
+}
+
+/* ── Inner wrapper ── */
+.provider-card-inner {
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* ── Header row ── */
+.provider-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+/* ── Avatar ── */
+.provider-avatar-wrap { position: relative; flex-shrink: 0; }
+
+.provider-img {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2.5px solid var(--gray-200);
+}
+
+.provider-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: var(--white);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 12px rgba(37,99,235,.28);
+}
+
+.avail-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+  bottom: 1px;
+  right: 1px;
+}
+
+.dot-green { background: var(--success); box-shadow: 0 0 0 2px rgba(34,197,94,.25); }
+.dot-red   { background: var(--danger);  box-shadow: 0 0 0 2px rgba(239,68,68,.25); }
+
+/* ── Provider info ── */
+.provider-info { flex: 1; min-width: 0; }
+
+.provider-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--gray-900);
+}
+
+.provider-location {
+  font-size: 0.78rem;
+  color: var(--gray-400);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.provider-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rating-text {
+  font-size: 0.78rem;
+  color: var(--gray-600);
+  font-weight: 600;
+}
+
+.distance-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--gray-100);
+  color: var(--gray-600);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* ── Services tags ── */
+.provider-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+/* ── Footer row ── */
+.provider-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  border-top: 1px solid var(--gray-100);
+  flex-wrap: wrap;
+}
+
+.hourly-rate {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.hourly-rate small {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--gray-400);
+}
