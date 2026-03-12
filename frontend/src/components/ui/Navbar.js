@@ -1,4 +1,4 @@
-// src/components/ui/Navbar.jsx
+// src/components/ui/Navbar.js
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
