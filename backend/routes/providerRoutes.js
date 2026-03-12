@@ -11,7 +11,7 @@ const {
 } = require('../controllers/providerController');
 
 router.get('/',             getProviders);
-router.get('/my-profile',   protect, authorize('provider'), getMyProfile);
+router.get('/profile',   protect, authorize('provider'), getMyProfile);
 router.get('/:id',          getProvider);
 
 router.post(

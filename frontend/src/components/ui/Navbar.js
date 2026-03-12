@@ -129,6 +129,13 @@ export default function Navbar() {
                       >
                         📝 Provider Setup
                       </Link>
+                      <Link
+                        to="/provider/profile"
+                        className="dropdown-item"
+                        onClick={() => setDropOpen(false)}
+                      >
+                        👨‍🔧 Provider Profile
+                      </Link>
                     </>
                   )}
 

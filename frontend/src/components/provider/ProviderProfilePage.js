@@ -1,403 +1,422 @@
 // src/pages/provider/ProviderProfilePage.jsx
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../api/axiosInstance';
-import StarRating from '../../components/ui/StarRating';
-import { useAuth } from '../../context/AuthContext';
-import '../../App.css';
 import './ProviderProfilePage.css';
 
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
 const ProviderProfilePage = () => {
-  const { id }     = useParams();
-  const { user }   = useAuth();
-  const navigate   = useNavigate();
-  const bookingRef = useRef(null);
+  const [provider, setProvider]   = useState(null);
+  const [loading,  setLoading]    = useState(true);
+  const [saving,   setSaving]     = useState(false);
+  const [toast,    setToast]      = useState(null);
+  const [editMode, setEditMode]   = useState(false);
+  const [form,     setForm]       = useState({});
+  const fileRef = useRef();
 
-  const [provider,         setProvider]         = useState(null);
-  const [reviews,          setReviews]          = useState([]);
-  const [loading,          setLoading]          = useState(true);
-  const [selectedService,  setSelectedService]  = useState(null);
+  /* ── fetch ── */
+const fetchProfile = useCallback(async () => {
+  setLoading(true);
+  try {
+    const res = await api.get('/providers/my-profile');
+    const p = res.data.provider || res.data.data;
+    setProvider(p);
 
-  // Booking form
-  const [scheduledDate,  setScheduledDate]  = useState('');
-  const [scheduledTime,  setScheduledTime]  = useState('');
-  const [street,         setStreet]         = useState('');
-  const [city,           setCity]           = useState('');
-  const [pincode,        setPincode]        = useState('');
-  const [notes,          setNotes]          = useState('');
-  const [bookingLoading, setBookingLoading] = useState(false);
-  const [successMsg,     setSuccessMsg]     = useState('');
-  const [errorMsg,       setErrorMsg]       = useState('');
+    setForm({
+      name: p.name || '',
+      phone: p.phone || '',
+      bio: p.bio || '',
+      description: p.description || '',
+      hourlyRate: p.hourlyRate || 0,
+      experience: p.experience || 0,
+      city: p.location?.city || '',
+      state: p.location?.state || '',
+      address: p.location?.address || '',
+      isAvailable: p.availability?.isAvailable ?? true,
+      workingDays: p.availability?.workingDays || [],
+      startHour: p.availability?.workingHours?.start || '09:00',
+      endHour: p.availability?.workingHours?.end || '18:00',
+    });
 
-  const today = new Date().toISOString().split('T')[0];
+  } catch (e) {
+    showToast('Failed to load profile', 'error');
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
-  useEffect(() => {
-    const fetchProvider = async () => {
-      try {
-        const res = await api.get(`/providers/${id}`);
-        setProvider(res.data.provider || res.data.data);
-        setReviews(res.data.reviews || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProvider();
-  }, [id]);
+ useEffect(() => {
+  fetchProfile();
+}, [fetchProfile]);
 
-  const handleSelectService = (service) => {
-    setSelectedService(service);
-    setSuccessMsg('');
-    setErrorMsg('');
-    setTimeout(() => {
-      bookingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+  /* ── helpers ── */
+  const showToast = (msg, type = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
   };
 
-  const handleBookingSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedService) return setErrorMsg('Please select a service first');
-    setBookingLoading(true);
-    setErrorMsg('');
-    setSuccessMsg('');
+  const toggleDay = (day) =>
+    setForm(f => ({
+      ...f,
+      workingDays: f.workingDays.includes(day)
+        ? f.workingDays.filter(d => d !== day)
+        : [...f.workingDays, day],
+    }));
+
+  /* ── availability quick-toggle (no full edit needed) ── */
+  const quickToggleAvailability = async () => {
+    const next = !provider.availability?.isAvailable;
+    setSaving(true);
     try {
-      await api.post('/bookings', {
-        providerId: id,
-        service: {
-          name:      selectedService.name,
-          category:  selectedService.category,
-          price:     selectedService.price,
-          priceUnit: selectedService.priceUnit,
+      await api.put('/providers/my-profile', {
+        availability: {
+          isAvailable:  next,
+          workingDays:  provider.availability?.workingDays  || [],
+          workingHours: provider.availability?.workingHours || { start: '09:00', end: '18:00' },
         },
-        scheduledDate,
-        scheduledTime,
-        address: { street, city, pincode },
-        notes,
       });
-      setSuccessMsg(`✅ Booking request sent for "${selectedService.name}"! The provider will respond soon.`);
-      setSelectedService(null);
-      setScheduledDate(''); setScheduledTime('');
-      setStreet(''); setCity(''); setPincode(''); setNotes('');
-    } catch (err) {
-      setErrorMsg(err.response?.data?.message || 'Booking failed. Please try again.');
+      setProvider(p => ({
+        ...p,
+        availability: { ...p.availability, isAvailable: next },
+      }));
+      setForm(f => ({ ...f, isAvailable: next }));
+      showToast(next ? 'You are now available ✓' : 'You are now unavailable');
+    } catch {
+      showToast('Could not update availability', 'error');
     } finally {
-      setBookingLoading(false);
+      setSaving(false);
     }
   };
 
+  /* ── save full profile ── */
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const payload = new FormData();
+      payload.append('name',        form.name);
+      payload.append('phone',       form.phone);
+      payload.append('bio',         form.bio);
+      payload.append('description', form.description);
+      payload.append('hourlyRate',  form.hourlyRate);
+      payload.append('experience',  form.experience);
+      payload.append('location',    JSON.stringify({
+        city: form.city, state: form.state, address: form.address,
+      }));
+      payload.append('availability', JSON.stringify({
+        isAvailable:  form.isAvailable,
+        workingDays:  form.workingDays,
+        workingHours: { start: form.startHour, end: form.endHour },
+      }));
+      if (fileRef.current?.files[0]) {
+        payload.append('profileImage', fileRef.current.files[0]);
+      }
+
+      const res = await api.put('/providers/my-profile', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const updated = res.data.provider || res.data.data;
+      setProvider(updated);
+      setEditMode(false);
+      showToast('Profile updated successfully ✓');
+    } catch {
+      showToast('Failed to save changes', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ── render ── */
   if (loading) return (
-    <div className="page-loading">
-      <div className="spinner" />
-      <p>Loading provider profile...</p>
+    <div className="ppp-page">
+      <div className="ppp-loading">
+        <div className="ppp-spinner" />
+        Loading your profile…
+      </div>
     </div>
   );
 
   if (!provider) return (
-    <div className="not-found-page">
-      <h2>Provider not found</h2>
-      <Link to="/services" className="btn-primary">Back to Services</Link>
+    <div className="ppp-page">
+      <div className="ppp-empty-state">
+        <span className="ppp-empty-icon">😕</span>
+        <p>Provider profile not found. Please register first.</p>
+      </div>
     </div>
   );
 
-  const isAvailable  = provider.availability?.isAvailable;
-  const providerName = provider.user?.name || provider.name;
+  const isAvailable = provider.availability?.isAvailable ?? true;
+  const workingDays = provider.availability?.workingDays || [];
+  const startHour   = provider.availability?.workingHours?.start || '09:00';
+  const endHour     = provider.availability?.workingHours?.end   || '18:00';
 
   return (
-    <div className="profile-page">
+    <div className="ppp-page">
+      {/* Toast */}
+      {toast && (
+        <div className={`ppp-toast ppp-toast-${toast.type}`}>{toast.msg}</div>
+      )}
 
-      {/* ── Header ── */}
-      <div className="profile-header">
-        <div className="profile-avatar-large">
-          {providerName?.charAt(0).toUpperCase()}
-        </div>
+      <div className="ppp-inner">
 
-        <div className="profile-details">
-          <div className="profile-name-row">
-            <h1>{providerName}</h1>
-            {provider.isVerified && <span className="verified-badge">✓ Verified</span>}
-            <span className={`avail-pill ${isAvailable ? 'avail-yes' : 'avail-no'}`}>
-              {isAvailable ? '🟢 Available' : '🔴 Unavailable'}
-            </span>
-          </div>
-
-          <p className="profile-location">
-            📍 {provider.location?.city || 'City not set'}
-            {provider.location?.state ? `, ${provider.location.state}` : ''}
-          </p>
-
-          <div className="rating-row profile-rating-row">
-            <StarRating rating={Math.round(provider.rating || 0)} />
-            <span className="rating-text">
-              {provider.rating ? provider.rating.toFixed(1) : '0.0'} &nbsp;·&nbsp;
-              {provider.totalReviews || 0} review{provider.totalReviews !== 1 ? 's' : ''}
-            </span>
-          </div>
-
-          <div className="profile-stats">
-            <div className="pstat">
-              <strong>{provider.experience || 0}</strong>
-              <span>Years Exp.</span>
-            </div>
-            <div className="pstat">
-              <strong>{provider.services?.length || 0}</strong>
-              <span>Services</span>
-            </div>
-            <div className="pstat">
-              <strong>{provider.totalReviews || 0}</strong>
-              <span>Reviews</span>
-            </div>
-          </div>
-
-          {provider.bio && (
-            <p className="profile-bio">"{provider.bio}"</p>
-          )}
-        </div>
-      </div>
-
-      {/* ── Alerts ── */}
-      {successMsg && <div className="alert alert-success">{successMsg}</div>}
-      {errorMsg   && <div className="alert alert-error">{errorMsg}</div>}
-
-      <div className="profile-layout">
-        {/* ── LEFT COLUMN ── */}
-        <div className="profile-main">
-
-          {/* Services Offered */}
-          <div className="section-card">
-            <h2 className="section-card-title">🔧 Services Offered</h2>
-            {(!provider.services || provider.services.length === 0) ? (
-              <p className="muted">No services listed yet.</p>
-            ) : (
-              <div className="services-list">
-                {provider.services.map((svc, i) => (
-                  <div
-                    key={i}
-                    className={`service-item ${selectedService?.name === svc.name ? 'service-item-selected' : ''}`}
-                  >
-                    <div className="service-item-info">
-                      <div className="service-item-top">
-                        <h3>{svc.name}</h3>
-                        <span className="service-category-tag">{svc.category}</span>
-                      </div>
-                      {svc.description && <p className="service-desc">{svc.description}</p>}
-                    </div>
-
-                    <div className="service-item-price">
-                      <span className="price">
-                        ₹{svc.price}<small>/{svc.priceUnit}</small>
-                      </span>
-                      {user?.role === 'user' && isAvailable && (
-                        <button
-                          className={`btn-sm ${selectedService?.name === svc.name ? 'btn-selected' : 'btn-primary'}`}
-                          onClick={() => handleSelectService(svc)}
-                        >
-                          {selectedService?.name === svc.name ? '✓ Selected' : 'Select'}
-                        </button>
-                      )}
-                      {user?.role === 'user' && !isAvailable && (
-                        <span className="unavail-text">Not available</span>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Working Hours */}
-          <div className="section-card">
-            <h2 className="section-card-title">🕐 Working Hours</h2>
-            <div className="working-hours-grid">
-              <div className="wh-item">
-                <span className="wh-label">Working Days</span>
-                <span className="wh-value">
-                  {provider.availability?.workingDays?.length
-                    ? provider.availability.workingDays.map(d => d.slice(0, 3)).join(', ')
-                    : 'Not specified'}
-                </span>
-              </div>
-              <div className="wh-item">
-                <span className="wh-label">Hours</span>
-                <span className="wh-value">
-                  {provider.availability?.workingHours?.start || '09:00'} –{' '}
-                  {provider.availability?.workingHours?.end || '18:00'}
-                </span>
-              </div>
-              <div className="wh-item">
-                <span className="wh-label">Phone</span>
-                <span className="wh-value">
-                  {provider.user?.phone || provider.phone || 'Not provided'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Booking Form */}
-          {user?.role === 'user' && (
-            <div className="section-card booking-form-card" ref={bookingRef}>
-              <h2 className="section-card-title">📅 Book a Service</h2>
-
-              {!isAvailable && (
-                <div className="unavail-banner">
-                  This provider is currently unavailable.
-                </div>
-              )}
-
-              {isAvailable && !selectedService && (
-                <div className="select-prompt">☝️ Select a service above to start booking</div>
-              )}
-
-              {isAvailable && selectedService && (
+        {/* ── Hero banner ── */}
+        <div className="ppp-hero">
+          <div className="ppp-hero-bg" />
+          <div className="ppp-hero-content">
+            <div className="ppp-avatar-wrap">
+              <img
+                className="ppp-avatar"
+                src={provider.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(provider.name)}&background=6c63ff&color=fff&size=128`}
+                alt={provider.name}
+              />
+              {editMode && (
                 <>
-                  <div className="selected-service-banner">
-                    <div>
-                      <strong>{selectedService.name}</strong>
-                      <span className="service-category-tag">{selectedService.category}</span>
-                    </div>
-                    <div className="selected-price">
-                      ₹{selectedService.price}/{selectedService.priceUnit}
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleBookingSubmit}>
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>📅 Preferred Date *</label>
-                        <input
-                          type="date"
-                          value={scheduledDate}
-                          onChange={e => setScheduledDate(e.target.value)}
-                          min={today}
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>⏰ Preferred Time *</label>
-                        <input
-                          type="time"
-                          value={scheduledTime}
-                          onChange={e => setScheduledTime(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label>🏠 Street Address *</label>
-                      <input
-                        type="text"
-                        value={street}
-                        onChange={e => setStreet(e.target.value)}
-                        placeholder="e.g. 123 Main Street"
-                        required
-                      />
-                    </div>
-
-                    <div className="form-row">
-                      <div className="form-group">
-                        <label>City *</label>
-                        <input
-                          type="text"
-                          value={city}
-                          onChange={e => setCity(e.target.value)}
-                          placeholder="Mumbai"
-                          required
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Pincode *</label>
-                        <input
-                          type="text"
-                          value={pincode}
-                          onChange={e => setPincode(e.target.value)}
-                          placeholder="400001"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="form-group">
-                      <label>📝 Additional Notes</label>
-                      <textarea
-                        value={notes}
-                        onChange={e => setNotes(e.target.value)}
-                        rows="3"
-                        placeholder="Special instructions..."
-                      />
-                    </div>
-
-                    <div className="booking-summary">
-                      💰 Estimated Cost:{' '}
-                      <strong>₹{selectedService.price} / {selectedService.priceUnit}</strong>
-                    </div>
-
-                    <div className="form-actions">
-                      <button
-                        type="button"
-                        className="btn-outline"
-                        onClick={() => setSelectedService(null)}
-                      >
-                        ✕ Cancel
-                      </button>
-                      <button type="submit" className="btn-primary" disabled={bookingLoading}>
-                        {bookingLoading ? '⏳ Sending...' : '✅ Confirm Booking'}
-                      </button>
-                    </div>
-                  </form>
+                  <label className="ppp-avatar-edit" htmlFor="profileImgInput">✏️</label>
+                  <input id="profileImgInput" type="file" accept="image/*" ref={fileRef} hidden />
                 </>
               )}
+              <span className={`ppp-online-dot ${isAvailable ? 'online' : 'offline'}`} />
             </div>
-          )}
 
-          {/* Login prompt for unauthenticated users */}
-          {!user && (
-            <div className="login-prompt">
-              <span>🔒 Want to book this provider?</span>
-              <Link to="/login" className="btn-primary btn-sm">Login</Link>
-              <Link to="/register" className="btn-outline btn-sm">Sign Up</Link>
+            <div className="ppp-hero-info">
+              <h1 className="ppp-name">{provider.name}</h1>
+              <p className="ppp-email">{provider.email}</p>
+              <div className="ppp-badges">
+                <span className={`ppp-badge ppp-badge-${provider.verificationStatus}`}>
+                  {provider.verificationStatus === 'verified' ? '✓ Verified' : provider.verificationStatus}
+                </span>
+                <span className={`ppp-badge ppp-badge-sub-${provider.subscription}`}>
+                  {provider.subscription === 'premium' ? '⭐ Premium' : 'Basic'}
+                </span>
+                {provider.rating > 0 && (
+                  <span className="ppp-badge ppp-badge-rating">
+                    ★ {provider.rating.toFixed(1)} ({provider.totalReviews} reviews)
+                  </span>
+                )}
+              </div>
             </div>
-          )}
 
-          {/* Provider cannot book another provider */}
-          {user?.role === 'provider' && (
-            <div className="login-prompt">
-              <span>Providers cannot book other providers.</span>
+            <div className="ppp-hero-actions">
+              {/* Availability quick-toggle */}
+              <div className="ppp-avail-toggle-wrap">
+                <span className="ppp-avail-label">
+                  {isAvailable ? '🟢 Available' : '🔴 Unavailable'}
+                </span>
+                <button
+                  className={`ppp-toggle ${isAvailable ? 'on' : 'off'}`}
+                  onClick={quickToggleAvailability}
+                  disabled={saving || editMode}
+                  aria-label="Toggle availability"
+                >
+                  <span className="ppp-toggle-thumb" />
+                </button>
+              </div>
+
+              {!editMode
+                ? <button className="ppp-btn ppp-btn-edit" onClick={() => setEditMode(true)}>Edit Profile</button>
+                : (
+                  <div className="ppp-edit-btns">
+                    <button className="ppp-btn ppp-btn-save" onClick={handleSave} disabled={saving}>
+                      {saving ? 'Saving…' : 'Save Changes'}
+                    </button>
+                    <button className="ppp-btn ppp-btn-cancel" onClick={() => setEditMode(false)}>Cancel</button>
+                  </div>
+                )
+              }
             </div>
-          )}
+          </div>
         </div>
 
-        {/* ── RIGHT: Reviews Sidebar ── */}
-        <aside className="reviews-sidebar">
-          <h2 className="section-card-title">⭐ Reviews ({reviews.length})</h2>
+        {/* ── Stats row ── */}
+        <div className="ppp-stats">
+          {[
+            { icon: '💼', num: provider.experience + ' yrs', label: 'Experience' },
+            { icon: '💰', num: '₹' + provider.hourlyRate + '/hr', label: 'Hourly Rate' },
+            { icon: '🛠️', num: provider.services?.length || 0, label: 'Services' },
+            { icon: '⭐', num: provider.rating?.toFixed(1) || '—', label: 'Rating' },
+          ].map(s => (
+            <div key={s.label} className="ppp-stat">
+              <div className="ppp-stat-icon">{s.icon}</div>
+              <div className="ppp-stat-num">{s.num}</div>
+              <div className="ppp-stat-label">{s.label}</div>
+            </div>
+          ))}
+        </div>
 
-          {reviews.length === 0 ? (
-            <div className="no-reviews">
-              <p>No reviews yet.</p>
-              <small>Be the first to leave a review!</small>
-            </div>
-          ) : (
-            <div className="reviews-list">
-              {reviews.map(review => (
-                <div key={review._id} className="review-card">
-                  <div className="review-header">
-                    <div className="reviewer-avatar">
-                      {review.user?.name?.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="reviewer-info">
-                      <strong>{review.user?.name}</strong>
-                      <StarRating rating={review.rating} />
-                    </div>
-                    <small className="review-date">
-                      {new Date(review.createdAt).toLocaleDateString()}
-                    </small>
-                  </div>
-                  <p className="review-comment">"{review.comment}"</p>
+        <div className="ppp-grid">
+
+          {/* ── Left column ── */}
+          <div className="ppp-col">
+
+            {/* About */}
+            <section className="ppp-card">
+              <h2 className="ppp-card-title">About</h2>
+              {editMode ? (
+                <>
+                  <textarea
+                    className="ppp-input ppp-textarea"
+                    placeholder="Short bio…"
+                    value={form.bio}
+                    onChange={e => setForm(f => ({ ...f, bio: e.target.value }))}
+                  />
+                  <textarea
+                    className="ppp-input ppp-textarea"
+                    placeholder="Full description…"
+                    value={form.description}
+                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                    style={{ marginTop: 10 }}
+                  />
+                </>
+              ) : (
+                <p className="ppp-text">{provider.bio || provider.description || 'No description yet.'}</p>
+              )}
+            </section>
+
+            {/* Personal details */}
+            <section className="ppp-card">
+              <h2 className="ppp-card-title">Personal Details</h2>
+              {editMode ? (
+                <div className="ppp-form-grid">
+                  <label className="ppp-label">Full Name
+                    <input className="ppp-input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                  </label>
+                  <label className="ppp-label">Phone
+                    <input className="ppp-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                  </label>
+                  <label className="ppp-label">Hourly Rate (₹)
+                    <input className="ppp-input" type="number" value={form.hourlyRate} onChange={e => setForm(f => ({ ...f, hourlyRate: e.target.value }))} />
+                  </label>
+                  <label className="ppp-label">Experience (years)
+                    <input className="ppp-input" type="number" value={form.experience} onChange={e => setForm(f => ({ ...f, experience: e.target.value }))} />
+                  </label>
                 </div>
-              ))}
-            </div>
-          )}
-        </aside>
+              ) : (
+                <div className="ppp-detail-list">
+                  <div className="ppp-detail-row"><span className="ppp-detail-key">📱 Phone</span><span>{provider.phone || '—'}</span></div>
+                  <div className="ppp-detail-row"><span className="ppp-detail-key">📧 Email</span><span>{provider.email || '—'}</span></div>
+                  <div className="ppp-detail-row"><span className="ppp-detail-key">📍 City</span><span>{provider.location?.city || '—'}</span></div>
+                  <div className="ppp-detail-row"><span className="ppp-detail-key">🗺️ State</span><span>{provider.location?.state || '—'}</span></div>
+                  <div className="ppp-detail-row"><span className="ppp-detail-key">🏠 Address</span><span>{provider.location?.address || '—'}</span></div>
+                </div>
+              )}
+              {editMode && (
+                <div className="ppp-form-grid" style={{ marginTop: 12 }}>
+                  <label className="ppp-label">City
+                    <input className="ppp-input" value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+                  </label>
+                  <label className="ppp-label">State
+                    <input className="ppp-input" value={form.state} onChange={e => setForm(f => ({ ...f, state: e.target.value }))} />
+                  </label>
+                  <label className="ppp-label" style={{ gridColumn: '1 / -1' }}>Address
+                    <input className="ppp-input" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+                  </label>
+                </div>
+              )}
+            </section>
+
+          </div>
+
+          {/* ── Right column ── */}
+          <div className="ppp-col">
+
+            {/* Availability */}
+            <section className="ppp-card">
+              <h2 className="ppp-card-title">Availability</h2>
+
+              <div className="ppp-avail-status-row">
+                <span className={`ppp-avail-status-dot ${isAvailable ? 'on' : 'off'}`} />
+                <span className="ppp-avail-status-text">
+                  {isAvailable ? 'Currently accepting bookings' : 'Not accepting bookings'}
+                </span>
+                {!editMode && (
+                  <button
+                    className={`ppp-toggle ppp-toggle-sm ${isAvailable ? 'on' : 'off'}`}
+                    onClick={quickToggleAvailability}
+                    disabled={saving}
+                  >
+                    <span className="ppp-toggle-thumb" />
+                  </button>
+                )}
+              </div>
+
+              {editMode && (
+                <>
+                  <div className="ppp-avail-toggle-row">
+                    <span>Accept Bookings</span>
+                    <button
+                      className={`ppp-toggle ${form.isAvailable ? 'on' : 'off'}`}
+                      onClick={() => setForm(f => ({ ...f, isAvailable: !f.isAvailable }))}
+                    >
+                      <span className="ppp-toggle-thumb" />
+                    </button>
+                  </div>
+
+                  <div className="ppp-days-grid">
+                    {DAYS.map(day => (
+                      <button
+                        key={day}
+                        className={`ppp-day-pill ${form.workingDays.includes(day) ? 'active' : ''}`}
+                        onClick={() => toggleDay(day)}
+                      >
+                        {day.slice(0, 3)}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="ppp-hours-row">
+                    <label className="ppp-label">Start
+                      <input type="time" className="ppp-input" value={form.startHour}
+                        onChange={e => setForm(f => ({ ...f, startHour: e.target.value }))} />
+                    </label>
+                    <span className="ppp-hours-sep">→</span>
+                    <label className="ppp-label">End
+                      <input type="time" className="ppp-input" value={form.endHour}
+                        onChange={e => setForm(f => ({ ...f, endHour: e.target.value }))} />
+                    </label>
+                  </div>
+                </>
+              )}
+
+              {!editMode && workingDays.length > 0 && (
+                <>
+                  <div className="ppp-days-display">
+                    {DAYS.map(day => (
+                      <span key={day} className={`ppp-day-chip ${workingDays.includes(day) ? 'active' : ''}`}>
+                        {day.slice(0, 3)}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="ppp-hours-display">
+                    🕐 {startHour} – {endHour}
+                  </div>
+                </>
+              )}
+            </section>
+
+            {/* Services */}
+            <section className="ppp-card">
+              <h2 className="ppp-card-title">Services Offered</h2>
+              {provider.services?.length > 0 ? (
+                <div className="ppp-services-list">
+                  {provider.services.map((s, i) => (
+                    <div key={i} className="ppp-service-item">
+                      <div className="ppp-service-info">
+                        <div className="ppp-service-name">{s.name}</div>
+                        <div className="ppp-service-cat">{s.category}</div>
+                        {s.description && <div className="ppp-service-desc">{s.description}</div>}
+                      </div>
+                      <div className="ppp-service-price">
+                        ₹{s.price}<span>/{s.priceUnit || 'hr'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="ppp-empty-sub">No services listed yet.</p>
+              )}
+            </section>
+
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -3,22 +3,30 @@ const Review   = require('../models/Review');
 const axios    = require('axios');
 const { haversine } = require('../utils/haversine');
 
+// ── Helper: safely parse a value that may already be an object or a JSON string ──
+const parseField = (val) => {
+  if (val === undefined || val === null) return undefined;
+  if (typeof val === 'object') return val;            // already parsed (JSON body)
+  if (typeof val === 'string') {
+    try { return JSON.parse(val); }                   // came from FormData as string
+    catch { return val; }                             // plain string — leave as-is
+  }
+  return val;
+};
+
 // ── Register Provider ────────────────────────────────────────
 exports.registerProvider = async (req, res, next) => {
   try {
-
     const existing = await Provider.findOne({ user: req.user._id });
 
-    // If provider exists and NOT rejected → block registration
-    if (existing && existing.verificationStatus !== "rejected") {
+    if (existing && existing.verificationStatus !== 'rejected') {
       return res.status(400).json({
         success: false,
-        message: "Provider profile already exists and is under review or verified"
+        message: 'Provider profile already exists and is under review or verified',
       });
     }
 
-    // If provider was rejected → delete old record and allow new registration
-    if (existing && existing.verificationStatus === "rejected") {
+    if (existing && existing.verificationStatus === 'rejected') {
       await Provider.deleteOne({ _id: existing._id });
     }
 
@@ -30,7 +38,7 @@ exports.registerProvider = async (req, res, next) => {
     const liveImage    = req.files.liveImage[0].path;
     const idProofImage = req.files.idProofImage[0].path;
 
-    // Auto-geocode via OpenStreetMap Nominatim
+    // ── Geocode ──
     let lat = null, lng = null;
     if (city) {
       try {
@@ -42,18 +50,45 @@ exports.registerProvider = async (req, res, next) => {
           lat = parseFloat(geoRes.data[0].lat);
           lng = parseFloat(geoRes.data[0].lon);
         }
-      } catch (_) { /* geocoding is optional */ }
+      } catch (_) { /* optional */ }
     }
 
-    const parsedServices = Array.isArray(services)
-      ? services
-      : services?.split(',').map(s => s.trim()).filter(Boolean) || [];
+    // ── Parse services ──
+    // Accepts three shapes:
+    //   1. Already an array of objects:  [{ name, category, price, priceUnit }]  (JSON body)
+    //   2. A JSON string of that array:  '[{"name":"Plumber","price":500}]'       (FormData)
+    //   3. A plain comma string:         "Plumber, Electrician"                   (legacy)
+    let parsedServices = parseField(services);
+
+    if (typeof parsedServices === 'string') {
+      // plain comma-separated fallback — price unknown, default to 0
+      parsedServices = parsedServices
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean)
+        .map(s => ({ name: s, category: s, price: 0, priceUnit: 'hour' }));
+    } else if (Array.isArray(parsedServices)) {
+      // Normalise each entry — fill in missing fields
+      parsedServices = parsedServices.map(s =>
+        typeof s === 'string'
+          ? { name: s, category: s, price: 0, priceUnit: 'hour' }
+          : {
+              name:      s.name      || '',
+              category:  s.category  || s.name || '',
+              description: s.description || '',
+              price:     Number(s.price)    || 0,   // ← price is NOW saved
+              priceUnit: s.priceUnit || 'hour',
+            }
+      );
+    } else {
+      parsedServices = [];
+    }
 
     const provider = await Provider.create({
       user: req.user._id,
       name, phone,
       email: req.user.email,
-      services: parsedServices.map(s => (typeof s === 'string' ? { name: s, category: s, price: 0 } : s)),
+      services: parsedServices,
       description: description || '',
       location: { city: city || '', state: state || '', address: address || '' },
       latitude: lat,
@@ -78,22 +113,21 @@ exports.getProviders = async (req, res, next) => {
 
     const query = { isVerified: true, verificationStatus: 'verified', isActive: true };
 
-    if (city)     query['location.city'] = new RegExp(city, 'i');
-    if (service)  query['services.name'] = new RegExp(service, 'i');
-    if (category) query['services.category'] = new RegExp(category, 'i');
-    if (search)   query.$or = [
+    if (city)     query['location.city']       = new RegExp(city, 'i');
+    if (service)  query['services.name']       = new RegExp(service, 'i');
+    if (category) query['services.category']   = new RegExp(category, 'i');
+    if (minRating) query.rating                = { $gte: Number(minRating) };
+    if (available === 'true') query['availability.isAvailable'] = true;
+    if (search) query.$or = [
       { name: new RegExp(search, 'i') },
       { 'services.name': new RegExp(search, 'i') },
       { 'services.category': new RegExp(search, 'i') },
     ];
-    if (minRating) query.rating = { $gte: Number(minRating) };
-    if (available === 'true') query['availability.isAvailable'] = true;
 
     let providers = await Provider.find(query)
       .populate('user', 'name email phone')
       .select('-idProofImage -liveImage');
 
-    // Sort by distance if coordinates provided
     if (lat && lng) {
       providers = providers.map(p => ({
         ...p.toObject(),
@@ -103,7 +137,6 @@ exports.getProviders = async (req, res, next) => {
       })).sort((a, b) => a.distance - b.distance);
     }
 
-    // Premium providers first
     providers.sort((a, b) => {
       if (a.subscription === 'premium' && b.subscription !== 'premium') return -1;
       if (b.subscription === 'premium' && a.subscription !== 'premium') return 1;
@@ -150,9 +183,64 @@ exports.updateProvider = async (req, res, next) => {
     if (!provider)
       return res.status(404).json({ success: false, message: 'Provider not found' });
 
-    const allowed = ['name', 'phone', 'bio', 'description', 'services', 'location', 'hourlyRate', 'experience', 'availability'];
-    allowed.forEach(f => { if (req.body[f] !== undefined) provider[f] = req.body[f]; });
+    // ── Simple scalar fields ──
+    const scalars = ['name', 'phone', 'bio', 'description', 'hourlyRate', 'experience'];
+    scalars.forEach(f => {
+      if (req.body[f] !== undefined) provider[f] = req.body[f];
+    });
 
+    // ── JSON fields (may arrive as string from FormData or as object from JSON body) ──
+
+    // location
+    const location = parseField(req.body.location);
+    if (location && typeof location === 'object') {
+      provider.location = {
+        city:    location.city    ?? provider.location?.city    ?? '',
+        state:   location.state   ?? provider.location?.state   ?? '',
+        address: location.address ?? provider.location?.address ?? '',
+        pincode: location.pincode ?? provider.location?.pincode ?? '',
+      };
+    }
+
+    // availability
+    const availability = parseField(req.body.availability);
+    if (availability && typeof availability === 'object') {
+      provider.availability = {
+        isAvailable:  availability.isAvailable  ?? provider.availability?.isAvailable  ?? true,
+        workingDays:  availability.workingDays   ?? provider.availability?.workingDays  ?? [],
+        workingHours: {
+          start: availability.workingHours?.start ?? provider.availability?.workingHours?.start ?? '09:00',
+          end:   availability.workingHours?.end   ?? provider.availability?.workingHours?.end   ?? '18:00',
+        },
+      };
+    }
+
+    // services — normalise and preserve price
+    const rawServices = parseField(req.body.services);
+    if (rawServices !== undefined) {
+      if (Array.isArray(rawServices)) {
+        provider.services = rawServices.map(s =>
+          typeof s === 'string'
+            ? { name: s, category: s, price: 0, priceUnit: 'hour' }
+            : {
+                name:        s.name        || '',
+                category:    s.category    || s.name || '',
+                description: s.description || '',
+                price:       Number(s.price)    || 0,   // ← price saved correctly
+                priceUnit:   s.priceUnit   || 'hour',
+              }
+        );
+      } else if (typeof rawServices === 'string' && rawServices.trim()) {
+        // plain comma string fallback
+        provider.services = rawServices
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean)
+          .map(s => ({ name: s, category: s, price: 0, priceUnit: 'hour' }));
+      }
+    }
+
+    // ── Profile image ──
     if (req.file) provider.profileImage = '/uploads/' + req.file.filename;
 
     await provider.save();

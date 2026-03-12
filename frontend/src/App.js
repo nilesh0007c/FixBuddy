@@ -28,6 +28,9 @@ import UserComplaintPage from './components/user/UserComplaintPage';
 import ProviderComplaintPage from './components/provider/Providercomplaintpage ';
 import AdminComplaintPanel from './components/admin/AdminComplaintPanel';
 
+
+
+
 /* ── Global styles ── */
 import './App.css';
 
@@ -106,6 +109,10 @@ function App() {
             <Route
               path="/provider/complaints"
               element={<ProtectedRoute roles={['provider']}><ProviderComplaintPage /></ProtectedRoute>}
+            />
+            <Route 
+            path="/provider/profile" 
+            element={<ProtectedRoute roles={['provider']}><ProviderProfilePage /></ProtectedRoute>} 
             />
 
             {/* ── Admin ── */}

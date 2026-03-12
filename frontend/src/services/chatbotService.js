@@ -1,7 +1,8 @@
 import axios from "axios";
+import server from "../environment"
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/chatbot",
+  baseURL: `${server}/api/chatbot`,
   headers: {
     "Content-Type": "application/json",
   },
