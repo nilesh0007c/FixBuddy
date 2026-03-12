@@ -6,17 +6,29 @@ const { haversine } = require('../utils/haversine');
 // ── Register Provider ────────────────────────────────────────
 exports.registerProvider = async (req, res, next) => {
   try {
+
     const existing = await Provider.findOne({ user: req.user._id });
-    if (existing)
-      return res.status(400).json({ success: false, message: 'Provider profile already exists' });
+
+    // If provider exists and NOT rejected → block registration
+    if (existing && existing.verificationStatus !== "rejected") {
+      return res.status(400).json({
+        success: false,
+        message: "Provider profile already exists and is under review or verified"
+      });
+    }
+
+    // If provider was rejected → delete old record and allow new registration
+    if (existing && existing.verificationStatus === "rejected") {
+      await Provider.deleteOne({ _id: existing._id });
+    }
 
     const { name, phone, services, description, city, state, address, hourlyRate, experience } = req.body;
 
     if (!req.files?.liveImage || !req.files?.idProofImage)
       return res.status(400).json({ success: false, message: 'Live image and ID proof are required' });
 
-    const liveImage    = '/uploads/' + req.files.liveImage[0].filename;
-    const idProofImage = '/uploads/' + req.files.idProofImage[0].filename;
+    const liveImage    = req.files.liveImage[0].path;
+    const idProofImage = req.files.idProofImage[0].path;
 
     // Auto-geocode via OpenStreetMap Nominatim
     let lat = null, lng = null;

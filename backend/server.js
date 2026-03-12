@@ -18,7 +18,6 @@ const chatSocketHandler = require('./chat/chatSocketHandler');
 const errorHandler = require('./middlewares/errorHandler');
 const { globalLimiter } = require('./middlewares/rateLimiter');
 const logger = require('./config/logger');
-
 const { initSocket } = require('./socket');
 
 // Routes
@@ -34,6 +33,7 @@ const complaintRoutes = require('./routes/complaintRoutes');
 
 const app = express();
 const server = http.createServer(app);
+
 
 // ─────────────────────────────────────
 // SOCKET.IO
@@ -55,8 +55,9 @@ io.on('connection', (socket) => {
 
 });
 
+
 // ─────────────────────────────────────
-// SECURITY
+// SECURITY MIDDLEWARE
 // ─────────────────────────────────────
 
 app.use(helmet({
@@ -65,11 +66,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
+  origin: "*",
+  methods: ["GET","POST","PUT","DELETE"],
+  credentials: true
 }));
 
 app.use(compression());
+
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -78,14 +81,15 @@ app.use(xss());
 
 app.use(globalLimiter);
 
-// ─────────────────────────────────────
-// STATIC
-// ─────────────────────────────────────
-
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // ─────────────────────────────────────
-// ROUTES
+// STATIC FILES
+// ─────────────────────────────────────
+
+
+
+// ─────────────────────────────────────
+// API ROUTES
 // ─────────────────────────────────────
 
 app.use('/api/auth', authRoutes);
@@ -98,16 +102,21 @@ app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/complaints', complaintRoutes);
 
+
 // ─────────────────────────────────────
-// HEALTH
+// HEALTH CHECK
 // ─────────────────────────────────────
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date() });
+  res.status(200).json({
+    status: 'ok',
+    time: new Date()
+  });
 });
 
+
 // ─────────────────────────────────────
-// 404
+// 404 HANDLER
 // ─────────────────────────────────────
 
 app.use((req, res) => {
@@ -117,11 +126,13 @@ app.use((req, res) => {
   });
 });
 
+
 // ─────────────────────────────────────
-// ERROR
+// GLOBAL ERROR HANDLER
 // ─────────────────────────────────────
 
 app.use(errorHandler);
+
 
 // ─────────────────────────────────────
 // START SERVER
@@ -129,10 +140,21 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
+const startServer = async () => {
+  try {
 
-  server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+    await connectDB();
 
-});
+    server.listen(PORT, () => {
+      logger.info(`Server running on port ${PORT}`);
+    });
+
+  } catch (error) {
+
+    logger.error("Server startup error:", error);
+    process.exit(1);
+
+  }
+};
+
+startServer();
