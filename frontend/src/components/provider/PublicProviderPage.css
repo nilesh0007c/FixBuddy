@@ -1,0 +1,134 @@
+/* src/components/provider/PublicProviderPage.css */
+
+.pbp-page { min-height: 100vh; background: var(--bg, #f4f6fb); padding: 24px 16px; }
+.pbp-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+
+/* Loading / error */
+.pbp-loading, .pbp-error {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 12px; min-height: 200px;
+  color: #666; font-size: 1rem;
+}
+.pbp-spinner {
+  width: 36px; height: 36px; border: 3px solid #e0e0e0;
+  border-top-color: #6c63ff; border-radius: 50%;
+  animation: pbp-spin 0.7s linear infinite;
+}
+@keyframes pbp-spin { to { transform: rotate(360deg); } }
+.pbp-btn-back {
+  background: none; border: 1px solid #6c63ff; color: #6c63ff;
+  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+}
+.pbp-btn-back:hover { background: #6c63ff; color: #fff; }
+
+/* Hero */
+.pbp-hero {
+  background: linear-gradient(135deg, #6c63ff 0%, #48c6ef 100%);
+  border-radius: 16px; padding: 32px 28px;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  color: #fff;
+}
+.pbp-avatar-wrap { position: relative; flex-shrink: 0; }
+.pbp-avatar {
+  width: 96px; height: 96px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.7); object-fit: cover;
+}
+.pbp-dot {
+  position: absolute; bottom: 4px; right: 4px;
+  width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid #fff;
+}
+.pbp-dot.online  { background: #22c55e; }
+.pbp-dot.offline { background: #94a3b8; }
+
+.pbp-hero-info { flex: 1; min-width: 200px; }
+.pbp-name    { margin: 0 0 4px; font-size: 1.6rem; font-weight: 700; }
+.pbp-location { margin: 0 0 10px; opacity: 0.85; font-size: 0.9rem; }
+
+.pbp-badges  { display: flex; flex-wrap: wrap; gap: 8px; }
+.pbp-badge   { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.pbp-badge-verified   { background: rgba(255,255,255,0.25); }
+.pbp-badge-pending    { background: rgba(255,200,0,0.3); }
+.pbp-badge-rejected   { background: rgba(255,80,80,0.3); }
+.pbp-badge-premium    { background: rgba(255,215,0,0.35); }
+.pbp-badge-available  { background: rgba(34,197,94,0.3); }
+.pbp-badge-busy       { background: rgba(148,163,184,0.3); }
+
+.pbp-btn-book {
+  background: #fff; color: #6c63ff; border: none;
+  padding: 10px 22px; border-radius: 10px;
+  font-weight: 700; font-size: 0.95rem; cursor: pointer;
+  white-space: nowrap; transition: transform 0.15s;
+  margin-left: auto;
+}
+.pbp-btn-book:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+/* Stats */
+.pbp-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+@media (max-width: 600px) { .pbp-stats { grid-template-columns: repeat(2, 1fr); } }
+
+.pbp-stat {
+  background: #fff; border-radius: 12px; padding: 16px;
+  text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.pbp-stat-icon  { font-size: 1.4rem; margin-bottom: 6px; }
+.pbp-stat-value { font-size: 1.1rem; font-weight: 700; color: #1e1b4b; }
+.pbp-stat-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+/* Grid */
+.pbp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 768px) { .pbp-grid { grid-template-columns: 1fr; } }
+.pbp-col  { display: flex; flex-direction: column; gap: 16px; }
+
+/* Card */
+.pbp-card {
+  background: #fff; border-radius: 14px; padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.pbp-card-title {
+  font-size: 1rem; font-weight: 700; color: #1e1b4b;
+  margin: 0 0 14px; padding-bottom: 10px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.pbp-text { color: #555; line-height: 1.6; margin: 0; }
+
+/* Detail list */
+.pbp-detail-list { display: flex; flex-direction: column; gap: 10px; }
+.pbp-detail-row  { display: flex; justify-content: space-between; gap: 12px; font-size: 0.9rem; }
+.pbp-detail-key  { color: #888; white-space: nowrap; }
+
+/* Services */
+.pbp-services-list  { display: flex; flex-direction: column; gap: 10px; }
+.pbp-service-item   {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 10px; background: #f8f9ff; border-radius: 8px;
+}
+.pbp-service-name   { font-weight: 600; color: #1e1b4b; font-size: 0.9rem; }
+.pbp-service-cat    { font-size: 0.78rem; color: #6c63ff; margin-top: 2px; }
+.pbp-service-desc   { font-size: 0.8rem; color: #888; margin-top: 4px; }
+.pbp-service-price  { font-weight: 700; color: #6c63ff; white-space: nowrap; font-size: 0.9rem; }
+.pbp-service-price span { font-weight: 400; font-size: 0.78rem; }
+
+/* Availability */
+.pbp-avail-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.9rem; }
+.pbp-avail-dot    { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.pbp-avail-dot.on  { background: #22c55e; }
+.pbp-avail-dot.off { background: #94a3b8; }
+
+.pbp-days { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.pbp-day-chip {
+  padding: 4px 10px; border-radius: 20px; font-size: 0.78rem;
+  background: #f0f0f0; color: #aaa;
+}
+.pbp-day-chip.active { background: #6c63ff; color: #fff; }
+.pbp-hours { font-size: 0.88rem; color: #555; margin: 0; }
+
+/* Reviews */
+.pbp-reviews-list  { display: flex; flex-direction: column; gap: 12px; }
+.pbp-review-item   { padding: 10px; background: #f8f9ff; border-radius: 8px; }
+.pbp-review-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.pbp-review-stars  { font-size: 0.8rem; }
+.pbp-review-text   { margin: 0; font-size: 0.88rem; color: #555; }

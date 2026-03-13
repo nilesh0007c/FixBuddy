@@ -18,7 +18,7 @@ const ProviderProfilePage = () => {
 const fetchProfile = useCallback(async () => {
   setLoading(true);
   try {
-    const res = await api.get('/providers/my-profile');
+    const res = await api.get('/providers/profile');
     const p = res.data.provider || res.data.data;
     setProvider(p);
 
@@ -68,7 +68,7 @@ const fetchProfile = useCallback(async () => {
     const next = !provider.availability?.isAvailable;
     setSaving(true);
     try {
-      await api.put('/providers/my-profile', {
+      await api.put('/providers/profile', {
         availability: {
           isAvailable:  next,
           workingDays:  provider.availability?.workingDays  || [],
@@ -111,7 +111,7 @@ const fetchProfile = useCallback(async () => {
         payload.append('profileImage', fileRef.current.files[0]);
       }
 
-      const res = await api.put('/providers/my-profile', payload, {
+      const res = await api.put('/providers/profile', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       const updated = res.data.provider || res.data.data;

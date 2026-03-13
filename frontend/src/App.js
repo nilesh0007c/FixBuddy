@@ -1,4 +1,4 @@
-// frontend/src/App.js
+// src/App.js
 import React, { Suspense, lazy } from 'react';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -6,65 +6,50 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import store from './redux/store';
 import { useAuth } from './context/AuthContext';
 
-import Navbar from './components/ui/Navbar';
+import Navbar         from './components/ui/Navbar';
 import ProtectedRoute from './components/ui/ProtectedRoute';
-import NotFound from './components/pages/NotFound';
+import NotFound       from './components/pages/NotFound';
 
-import HomePage from './components/pages/HomePage';
-import LoginPage from './components/pages/LoginPage';
-import RegisterPage from './components/pages/RegisterPage';
-import AboutPage from './components/pages/AboutPage';
-import ServicesPage from './components/pages/ServicesPage';
-import ProviderProfilePage from './components/provider/ProviderProfilePage';
+import HomePage       from './components/pages/HomePage';
+import LoginPage      from './components/pages/LoginPage';
+import RegisterPage   from './components/pages/RegisterPage';
+import AboutPage      from './components/pages/AboutPage';
+import ServicesPage   from './components/pages/ServicesPage';
+import ForgetPass     from './components/pages/ForgotPasswordPage';
+import ChatbotWidget  from './components/chatbot/ChatbotWidget';
 
-import UserDashboard from './components/user/UserDashboard';
-import ProviderDashboard from './components/provider/ProviderDashboard';
-import AdminDashboard from './components/admin/AdminDashboard';
-import PendingVerification from './components/admin/PendingVerification';
-import ProviderRegister from './components/provider/ProviderRegister';
-import ForgetPass from './components/pages/ForgotPasswordPage';
-import ChatbotWidget from './components/chatbot/ChatbotWidget';
-import UserComplaintPage from './components/user/UserComplaintPage';
+import UserDashboard        from './components/user/UserDashboard';
+import UserComplaintPage    from './components/user/UserComplaintPage';
+
+import ProviderDashboard    from './components/provider/ProviderDashboard';
+import ProviderRegister     from './components/provider/ProviderRegister';
+import ProviderProfilePage  from './components/provider/ProviderProfilePage';   // private — own profile
+import PublicProviderPage   from './components/provider/PublicProviderPage';    // ← NEW: public by :id
 import ProviderComplaintPage from './components/provider/Providercomplaintpage ';
-import AdminComplaintPanel from './components/admin/AdminComplaintPanel';
 
+import AdminDashboard       from './components/admin/AdminDashboard';
+import PendingVerification  from './components/admin/PendingVerification';
+import AdminComplaintPanel  from './components/admin/AdminComplaintPanel';
 
-
-
-/* ── Global styles ── */
 import './App.css';
 
-/* ──────────────────────────────────────────────
-   Lazy-loaded pages
-────────────────────────────────────────────── */
 const ChatPage      = lazy(() => import('./components/chat/ChatPage'));
 const NegotiatePage = lazy(() => import('./components/bargaining/NegotiatePage'));
 
-/* ──────────────────────────────────────────────
-   Dashboard auto-redirect based on role
-────────────────────────────────────────────── */
+/* ── Dashboard auto-redirect ── */
 const DashboardRedirect = () => {
   const { user } = useAuth();
-  if (!user)                  return <Navigate to="/login" replace />;
-  if (user.role === 'admin')    return <Navigate to="/dashboard/admin" replace />;
+  if (!user)                    return <Navigate to="/login"            replace />;
+  if (user.role === 'admin')    return <Navigate to="/dashboard/admin"  replace />;
   if (user.role === 'provider') return <Navigate to="/dashboard/provider" replace />;
-  return <Navigate to="/dashboard/user" replace />;
+  return                               <Navigate to="/dashboard/user"   replace />;
 };
 
-/* ──────────────────────────────────────────────
-   Suspense fallback spinner
-────────────────────────────────────────────── */
 const PageLoader = () => (
-  <div className="page-loading">
-    <div className="spinner" />
-    Loading...
-  </div>
+  <div className="page-loading"><div className="spinner" />Loading…</div>
 );
 
-/* ──────────────────────────────────────────────
-   App
-────────────────────────────────────────────── */
-function App() {
+export default function App() {
   return (
     <Provider store={store}>
       <BrowserRouter>
@@ -72,6 +57,7 @@ function App() {
 
         <Suspense fallback={<PageLoader />}>
           <Routes>
+
             {/* ── Public ── */}
             <Route path="/"              element={<HomePage />} />
             <Route path="/services"      element={<ServicesPage />} />
@@ -79,7 +65,9 @@ function App() {
             <Route path="/login"         element={<LoginPage />} />
             <Route path="/register"      element={<RegisterPage />} />
             <Route path="/forgetpassword" element={<ForgetPass />} />
-            <Route path="/providers/:id" element={<ProviderProfilePage />} />
+
+            {/* PUBLIC provider page — uses PublicProviderPage, NOT ProviderProfilePage */}
+            <Route path="/providers/:id" element={<PublicProviderPage />} />
 
             {/* ── Dashboard redirect ── */}
             <Route
@@ -88,50 +76,41 @@ function App() {
             />
 
             {/* ── User ── */}
-            <Route
-              path="/dashboard/user"
+            <Route path="/dashboard/user"
               element={<ProtectedRoute roles={['user']}><UserDashboard /></ProtectedRoute>}
             />
-            <Route
-              path="/complaints"
+            <Route path="/complaints"
               element={<ProtectedRoute roles={['user']}><UserComplaintPage /></ProtectedRoute>}
             />
 
             {/* ── Provider ── */}
-            <Route
-              path="/dashboard/provider"
+            <Route path="/dashboard/provider"
               element={<ProtectedRoute roles={['provider']}><ProviderDashboard /></ProtectedRoute>}
             />
-            <Route
-              path="/provider/register"
+            <Route path="/provider/register"
               element={<ProtectedRoute roles={['provider']}><ProviderRegister /></ProtectedRoute>}
             />
-            <Route
-              path="/provider/complaints"
+            <Route path="/provider/complaints"
               element={<ProtectedRoute roles={['provider']}><ProviderComplaintPage /></ProtectedRoute>}
             />
-            <Route 
-            path="/provider/profile" 
-            element={<ProtectedRoute roles={['provider']}><ProviderProfilePage /></ProtectedRoute>} 
+            {/* PRIVATE provider profile — uses ProviderProfilePage (own profile, edit mode) */}
+            <Route path="/provider/profile"
+              element={<ProtectedRoute roles={['provider']}><ProviderProfilePage /></ProtectedRoute>}
             />
 
             {/* ── Admin ── */}
-            <Route
-              path="/dashboard/admin"
+            <Route path="/dashboard/admin"
               element={<ProtectedRoute roles={['admin']}><AdminDashboard /></ProtectedRoute>}
             />
-            <Route
-              path="/admin/verification"
+            <Route path="/admin/verification"
               element={<ProtectedRoute roles={['admin']}><PendingVerification /></ProtectedRoute>}
             />
-            <Route
-              path="/admin/complaint"
+            <Route path="/admin/complaint"
               element={<ProtectedRoute roles={['admin']}><AdminComplaintPanel /></ProtectedRoute>}
             />
 
             {/* ── Chat ── */}
-            <Route
-              path="/chat"
+            <Route path="/chat"
               element={
                 <ProtectedRoute roles={['user', 'provider', 'admin']}>
                   <ChatPage />
@@ -140,18 +119,14 @@ function App() {
             />
 
             {/* ── Negotiate ── */}
-            <Route
-              path="/negotiate/:bookingId"
+            <Route path="/negotiate/:bookingId"
               element={
                 <ProtectedRoute roles={['user', 'provider']}>
                   <NegotiatePage />
                 </ProtectedRoute>
               }
             />
-
-            {/* Legacy route */}
-            <Route
-              path="/negotiation/:id"
+            <Route path="/negotiation/:id"
               element={
                 <ProtectedRoute roles={['user', 'provider']}>
                   <Navigate to="/dashboard" replace />
@@ -168,5 +143,3 @@ function App() {
     </Provider>
   );
 }
-
-export default App;
