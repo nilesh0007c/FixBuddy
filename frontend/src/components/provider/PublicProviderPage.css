@@ -1,134 +1,245 @@
 /* src/components/provider/PublicProviderPage.css */
 
-.pbp-page { min-height: 100vh; background: var(--bg, #f4f6fb); padding: 24px 16px; }
-.pbp-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+/* ── Page shell ─────────────────────────────────────────────── */
+.pbp-page  { min-height: 100vh; background: #f4f6fb; padding: 24px 16px; }
+.pbp-inner { max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
 
-/* Loading / error */
+/* ── Loading / error ─────────────────────────────────────────── */
 .pbp-loading, .pbp-error {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; gap: 12px; min-height: 200px;
-  color: #666; font-size: 1rem;
+  justify-content: center; gap: 14px; min-height: 240px; color: #666;
 }
 .pbp-spinner {
-  width: 36px; height: 36px; border: 3px solid #e0e0e0;
-  border-top-color: #6c63ff; border-radius: 50%;
-  animation: pbp-spin 0.7s linear infinite;
+  width: 38px; height: 38px;
+  border: 3px solid #e0e0e0; border-top-color: #6c63ff;
+  border-radius: 50%; animation: pbp-spin .7s linear infinite;
 }
 @keyframes pbp-spin { to { transform: rotate(360deg); } }
+.pbp-error-icon { font-size: 2.5rem; }
 .pbp-btn-back {
   background: none; border: 1px solid #6c63ff; color: #6c63ff;
-  padding: 8px 16px; border-radius: 8px; cursor: pointer;
+  padding: 8px 18px; border-radius: 8px; cursor: pointer; font-size: .9rem;
 }
 .pbp-btn-back:hover { background: #6c63ff; color: #fff; }
 
-/* Hero */
+/* ── Global alerts ───────────────────────────────────────────── */
+.pbp-alert {
+  padding: 14px 18px; border-radius: 10px; font-size: .92rem; font-weight: 500;
+}
+.pbp-alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+.pbp-alert-error   { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+
+/* ── Hero ────────────────────────────────────────────────────── */
 .pbp-hero {
   background: linear-gradient(135deg, #6c63ff 0%, #48c6ef 100%);
-  border-radius: 16px; padding: 32px 28px;
-  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
-  color: #fff;
+  border-radius: 18px; padding: 32px 28px;
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap; color: #fff;
 }
 .pbp-avatar-wrap { position: relative; flex-shrink: 0; }
 .pbp-avatar {
   width: 96px; height: 96px; border-radius: 50%;
-  border: 3px solid rgba(255,255,255,0.7); object-fit: cover;
+  border: 3px solid rgba(255,255,255,.7); object-fit: cover;
 }
 .pbp-dot {
   position: absolute; bottom: 4px; right: 4px;
-  width: 14px; height: 14px; border-radius: 50%;
-  border: 2px solid #fff;
+  width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff;
 }
 .pbp-dot.online  { background: #22c55e; }
 .pbp-dot.offline { background: #94a3b8; }
 
-.pbp-hero-info { flex: 1; min-width: 200px; }
-.pbp-name    { margin: 0 0 4px; font-size: 1.6rem; font-weight: 700; }
-.pbp-location { margin: 0 0 10px; opacity: 0.85; font-size: 0.9rem; }
+.pbp-hero-info  { flex: 1; min-width: 200px; }
+.pbp-name       { margin: 0 0 4px; font-size: 1.7rem; font-weight: 700; }
+.pbp-location   { margin: 0 0 6px; opacity: .85; font-size: .9rem; }
+.pbp-rating-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; font-size: .9rem; }
+.pbp-rating-text{ opacity: .85; }
 
-.pbp-badges  { display: flex; flex-wrap: wrap; gap: 8px; }
-.pbp-badge   { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-.pbp-badge-verified   { background: rgba(255,255,255,0.25); }
-.pbp-badge-pending    { background: rgba(255,200,0,0.3); }
-.pbp-badge-rejected   { background: rgba(255,80,80,0.3); }
-.pbp-badge-premium    { background: rgba(255,215,0,0.35); }
-.pbp-badge-available  { background: rgba(34,197,94,0.3); }
-.pbp-badge-busy       { background: rgba(148,163,184,0.3); }
+.pbp-badges     { display: flex; flex-wrap: wrap; gap: 8px; }
+.pbp-badge      { font-size: .75rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.pbp-badge-verified  { background: rgba(255,255,255,.25); }
+.pbp-badge-pending   { background: rgba(255,200,0,.3); }
+.pbp-badge-rejected  { background: rgba(255,80,80,.3); }
+.pbp-badge-premium   { background: rgba(255,215,0,.35); }
+.pbp-badge-available { background: rgba(34,197,94,.3); }
+.pbp-badge-busy      { background: rgba(148,163,184,.3); }
 
-.pbp-btn-book {
+.pbp-btn-contact {
   background: #fff; color: #6c63ff; border: none;
-  padding: 10px 22px; border-radius: 10px;
-  font-weight: 700; font-size: 0.95rem; cursor: pointer;
-  white-space: nowrap; transition: transform 0.15s;
-  margin-left: auto;
+  padding: 11px 24px; border-radius: 10px;
+  font-weight: 700; font-size: .95rem; cursor: pointer;
+  white-space: nowrap; margin-left: auto;
+  transition: transform .15s, box-shadow .15s;
 }
-.pbp-btn-book:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.pbp-btn-contact:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
 
-/* Stats */
+/* ── Stats ───────────────────────────────────────────────────── */
 .pbp-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
 }
 @media (max-width: 600px) { .pbp-stats { grid-template-columns: repeat(2, 1fr); } }
-
 .pbp-stat {
-  background: #fff; border-radius: 12px; padding: 16px;
-  text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: #fff; border-radius: 12px; padding: 18px 12px;
+  text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,.06);
 }
 .pbp-stat-icon  { font-size: 1.4rem; margin-bottom: 6px; }
 .pbp-stat-value { font-size: 1.1rem; font-weight: 700; color: #1e1b4b; }
-.pbp-stat-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+.pbp-stat-label { font-size: .75rem; color: #888; margin-top: 2px; }
 
-/* Grid */
-.pbp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-@media (max-width: 768px) { .pbp-grid { grid-template-columns: 1fr; } }
-.pbp-col  { display: flex; flex-direction: column; gap: 16px; }
+/* ── Layout grid ─────────────────────────────────────────────── */
+.pbp-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; }
+@media (max-width: 800px) { .pbp-grid { grid-template-columns: 1fr; } }
+.pbp-col-left, .pbp-col-right { display: flex; flex-direction: column; gap: 16px; }
 
-/* Card */
+/* ── Card ────────────────────────────────────────────────────── */
 .pbp-card {
-  background: #fff; border-radius: 14px; padding: 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  background: #fff; border-radius: 14px; padding: 22px;
+  box-shadow: 0 1px 5px rgba(0,0,0,.06);
 }
 .pbp-card-title {
   font-size: 1rem; font-weight: 700; color: #1e1b4b;
-  margin: 0 0 14px; padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  margin: 0 0 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;
 }
-.pbp-text { color: #555; line-height: 1.6; margin: 0; }
+.pbp-text { color: #555; line-height: 1.65; margin: 0; }
+.pbp-muted { color: #aaa; font-size: .9rem; margin: 0; }
 
-/* Detail list */
+/* ── Services list ───────────────────────────────────────────── */
+.pbp-services-list { display: flex; flex-direction: column; gap: 10px; }
+.pbp-service-item {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  padding: 14px; background: #f8f9ff; border-radius: 10px;
+  border: 2px solid transparent; transition: border-color .2s;
+}
+.pbp-service-item.selected { border-color: #6c63ff; background: #f0eeff; }
+
+.pbp-service-name  { font-weight: 600; color: #1e1b4b; font-size: .92rem; }
+.pbp-service-cat   { font-size: .78rem; color: #6c63ff; margin-top: 2px; }
+.pbp-service-desc  { font-size: .8rem; color: #888; margin-top: 4px; }
+
+.pbp-service-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0;
+}
+.pbp-service-price { font-weight: 700; color: #6c63ff; font-size: .95rem; }
+.pbp-service-price span { font-weight: 400; font-size: .78rem; }
+
+.pbp-btn-select {
+  padding: 6px 14px; border-radius: 8px; font-size: .82rem; font-weight: 600;
+  cursor: pointer; border: 2px solid #6c63ff; background: #fff; color: #6c63ff;
+  text-decoration: none; transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.pbp-btn-select:hover, .pbp-btn-select.active {
+  background: #6c63ff; color: #fff;
+}
+.pbp-unavail-tag {
+  font-size: .78rem; color: #aaa; font-style: italic;
+}
+
+/* ── Booking form ────────────────────────────────────────────── */
+.pbp-booking-card { border: 2px solid #6c63ff20; }
+
+.pbp-unavail-banner {
+  background: #fff7ed; color: #92400e; border: 1px solid #fcd34d;
+  padding: 12px 16px; border-radius: 8px; font-size: .9rem; margin-bottom: 4px;
+}
+.pbp-select-prompt {
+  background: #f0f4ff; color: #4338ca; padding: 14px 16px;
+  border-radius: 8px; font-size: .9rem; text-align: center;
+}
+
+.pbp-selected-svc-banner {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #ede9ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 18px;
+}
+.pbp-svc-cat-tag {
+  margin-left: 8px; font-size: .75rem; background: #6c63ff;
+  color: #fff; padding: 2px 8px; border-radius: 20px;
+}
+.pbp-selected-price { font-weight: 700; color: #6c63ff; font-size: 1rem; }
+
+.pbp-booking-form { display: flex; flex-direction: column; gap: 14px; }
+
+.pbp-form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+@media (max-width: 500px) { .pbp-form-row { grid-template-columns: 1fr; } }
+
+.pbp-form-group { display: flex; flex-direction: column; gap: 6px; }
+.pbp-form-group label { font-size: .85rem; font-weight: 600; color: #374151; }
+.pbp-form-group input,
+.pbp-form-group textarea {
+  padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  font-size: .9rem; outline: none; transition: border-color .15s;
+  font-family: inherit;
+}
+.pbp-form-group input:focus,
+.pbp-form-group textarea:focus { border-color: #6c63ff; }
+
+.pbp-cost-summary {
+  background: #f9fafb; padding: 12px 16px; border-radius: 8px;
+  font-size: .9rem; color: #374151;
+}
+
+.pbp-form-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+.pbp-btn-cancel-booking {
+  padding: 10px 20px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+  background: #fff; color: #6b7280; cursor: pointer; font-size: .9rem;
+}
+.pbp-btn-cancel-booking:hover { background: #f9fafb; }
+
+.pbp-btn-confirm {
+  padding: 10px 24px; background: #6c63ff; color: #fff;
+  border: none; border-radius: 8px; font-weight: 700;
+  font-size: .9rem; cursor: pointer; transition: background .15s;
+}
+.pbp-btn-confirm:hover    { background: #5b52e8; }
+.pbp-btn-confirm:disabled { background: #a5a0f0; cursor: not-allowed; }
+
+/* ── Login prompt ────────────────────────────────────────────── */
+.pbp-login-prompt {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 14px; text-align: center; color: #555; font-size: .92rem;
+}
+.pbp-login-btns { display: flex; gap: 10px; }
+.pbp-btn-login {
+  padding: 9px 22px; background: #6c63ff; color: #fff;
+  border-radius: 8px; text-decoration: none; font-weight: 600; font-size: .88rem;
+}
+.pbp-btn-signup {
+  padding: 9px 22px; border: 1.5px solid #6c63ff; color: #6c63ff;
+  border-radius: 8px; text-decoration: none; font-weight: 600; font-size: .88rem;
+}
+
+/* ── Detail list ─────────────────────────────────────────────── */
 .pbp-detail-list { display: flex; flex-direction: column; gap: 10px; }
-.pbp-detail-row  { display: flex; justify-content: space-between; gap: 12px; font-size: 0.9rem; }
+.pbp-detail-row  { display: flex; justify-content: space-between; gap: 12px; font-size: .9rem; color: #374151; }
 .pbp-detail-key  { color: #888; white-space: nowrap; }
 
-/* Services */
-.pbp-services-list  { display: flex; flex-direction: column; gap: 10px; }
-.pbp-service-item   {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 10px; background: #f8f9ff; border-radius: 8px;
-}
-.pbp-service-name   { font-weight: 600; color: #1e1b4b; font-size: 0.9rem; }
-.pbp-service-cat    { font-size: 0.78rem; color: #6c63ff; margin-top: 2px; }
-.pbp-service-desc   { font-size: 0.8rem; color: #888; margin-top: 4px; }
-.pbp-service-price  { font-weight: 700; color: #6c63ff; white-space: nowrap; font-size: 0.9rem; }
-.pbp-service-price span { font-weight: 400; font-size: 0.78rem; }
-
-/* Availability */
-.pbp-avail-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 0.9rem; }
+/* ── Availability ────────────────────────────────────────────── */
+.pbp-avail-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: .9rem; }
 .pbp-avail-dot    { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
 .pbp-avail-dot.on  { background: #22c55e; }
 .pbp-avail-dot.off { background: #94a3b8; }
 
 .pbp-days { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .pbp-day-chip {
-  padding: 4px 10px; border-radius: 20px; font-size: 0.78rem;
-  background: #f0f0f0; color: #aaa;
+  padding: 4px 10px; border-radius: 20px; font-size: .78rem;
+  background: #f0f0f0; color: #bbb;
 }
 .pbp-day-chip.active { background: #6c63ff; color: #fff; }
-.pbp-hours { font-size: 0.88rem; color: #555; margin: 0; }
+.pbp-hours { font-size: .88rem; color: #555; margin: 0; }
 
-/* Reviews */
+/* ── Reviews ─────────────────────────────────────────────────── */
 .pbp-reviews-list  { display: flex; flex-direction: column; gap: 12px; }
-.pbp-review-item   { padding: 10px; background: #f8f9ff; border-radius: 8px; }
-.pbp-review-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.pbp-review-stars  { font-size: 0.8rem; }
-.pbp-review-text   { margin: 0; font-size: 0.88rem; color: #555; }
+.pbp-review-item   { padding: 12px; background: #f8f9ff; border-radius: 10px; }
+.pbp-review-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+}
+.pbp-reviewer-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #6c63ff; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .9rem; flex-shrink: 0;
+}
+.pbp-review-stars  { font-size: .8rem; margin-top: 2px; }
+.pbp-review-date   { margin-left: auto; color: #aaa; font-size: .78rem; }
+.pbp-review-text   { margin: 0; font-size: .88rem; color: #555; font-style: italic; }

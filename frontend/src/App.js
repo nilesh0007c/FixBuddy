@@ -21,28 +21,30 @@ import ChatbotWidget  from './components/chatbot/ChatbotWidget';
 import UserDashboard        from './components/user/UserDashboard';
 import UserComplaintPage    from './components/user/UserComplaintPage';
 
-import ProviderDashboard    from './components/provider/ProviderDashboard';
-import ProviderRegister     from './components/provider/ProviderRegister';
-import ProviderProfilePage  from './components/provider/ProviderProfilePage';   // private — own profile
-import PublicProviderPage   from './components/provider/PublicProviderPage';    // ← NEW: public by :id
+import ProviderDashboard     from './components/provider/ProviderDashboard';
+import ProviderRegister      from './components/provider/ProviderRegister';
 import ProviderComplaintPage from './components/provider/Providercomplaintpage ';
 
-import AdminDashboard       from './components/admin/AdminDashboard';
-import PendingVerification  from './components/admin/PendingVerification';
-import AdminComplaintPanel  from './components/admin/AdminComplaintPanel';
+// ProviderProfilePage  → private, own profile, edit mode
+// PublicProviderPage   → public, view any provider by :id, has booking form
+import ProviderProfilePage from './components/provider/ProviderProfilePage';
+import PublicProviderPage  from './components/provider/PublicProviderPage';
+
+import AdminDashboard      from './components/admin/AdminDashboard';
+import PendingVerification from './components/admin/PendingVerification';
+import AdminComplaintPanel from './components/admin/AdminComplaintPanel';
 
 import './App.css';
 
 const ChatPage      = lazy(() => import('./components/chat/ChatPage'));
 const NegotiatePage = lazy(() => import('./components/bargaining/NegotiatePage'));
 
-/* ── Dashboard auto-redirect ── */
 const DashboardRedirect = () => {
   const { user } = useAuth();
-  if (!user)                    return <Navigate to="/login"            replace />;
-  if (user.role === 'admin')    return <Navigate to="/dashboard/admin"  replace />;
+  if (!user)                    return <Navigate to="/login"              replace />;
+  if (user.role === 'admin')    return <Navigate to="/dashboard/admin"   replace />;
   if (user.role === 'provider') return <Navigate to="/dashboard/provider" replace />;
-  return                               <Navigate to="/dashboard/user"   replace />;
+  return                               <Navigate to="/dashboard/user"    replace />;
 };
 
 const PageLoader = () => (
@@ -54,24 +56,22 @@ export default function App() {
     <Provider store={store}>
       <BrowserRouter>
         <Navbar />
-
         <Suspense fallback={<PageLoader />}>
           <Routes>
 
             {/* ── Public ── */}
-            <Route path="/"              element={<HomePage />} />
-            <Route path="/services"      element={<ServicesPage />} />
-            <Route path="/about"         element={<AboutPage />} />
-            <Route path="/login"         element={<LoginPage />} />
-            <Route path="/register"      element={<RegisterPage />} />
+            <Route path="/"               element={<HomePage />} />
+            <Route path="/services"       element={<ServicesPage />} />
+            <Route path="/about"          element={<AboutPage />} />
+            <Route path="/login"          element={<LoginPage />} />
+            <Route path="/register"       element={<RegisterPage />} />
             <Route path="/forgetpassword" element={<ForgetPass />} />
 
-            {/* PUBLIC provider page — uses PublicProviderPage, NOT ProviderProfilePage */}
-            <Route path="/providers/:id" element={<PublicProviderPage />} />
+            {/* Public provider page — view any provider + book a service */}
+            <Route path="/providers/:id"  element={<PublicProviderPage />} />
 
             {/* ── Dashboard redirect ── */}
-            <Route
-              path="/dashboard"
+            <Route path="/dashboard"
               element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>}
             />
 
@@ -93,7 +93,7 @@ export default function App() {
             <Route path="/provider/complaints"
               element={<ProtectedRoute roles={['provider']}><ProviderComplaintPage /></ProtectedRoute>}
             />
-            {/* PRIVATE provider profile — uses ProviderProfilePage (own profile, edit mode) */}
+            {/* Private provider profile — own profile, edit mode */}
             <Route path="/provider/profile"
               element={<ProtectedRoute roles={['provider']}><ProviderProfilePage /></ProtectedRoute>}
             />
@@ -137,7 +137,6 @@ export default function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
-
         <ChatbotWidget />
       </BrowserRouter>
     </Provider>
