@@ -27,9 +27,9 @@ const INTENT_MAP = {
 ───────────────────────────────────────────────────────────────────── */
 const RESPONSES = {
   greeting: [
-    "👋 Hello! Welcome to SLS — your Smart Local Services marketplace. I'm your AI assistant. How can I help you today?",
-    "Hey there! 😊 Great to see you at SLS. I can help you book services, track orders, handle payments, and more. What do you need?",
-    "Hi! I'm the SLS Assistant. Whether you need a plumber, electrician, or any local service — I've got you covered. What can I do for you?",
+    "👋 Hello! Welcome to FixBuddy — your Smart Local Services marketplace. I'm your AI assistant. How can I help you today?",
+    "Hey there! 😊 Great to see you at SLFixBubby. I can help you book services, track orders, handle payments, and more. What do you need?",
+    "Hi! I'm the FixBuddy Assistant. Whether you need a plumber, electrician, or any local service — I've got you covered. What can I do for you?",
   ],
   thanks: [
     "You're very welcome! 😊 Is there anything else I can help you with?",
@@ -54,7 +54,7 @@ const RESPONSES = {
     "💳 **Payment Information:**\n\nWe accept:\n• Credit / Debit Cards (Visa, Mastercard, RuPay)\n• UPI (GPay, PhonePe, Paytm)\n• Net Banking\n• Wallets\n\nAll transactions are **secured with 256-bit SSL encryption**. Invoices are auto-generated and emailed after service completion.\n\nFor payment disputes, contact our support team. Is there a specific payment issue I can help with?",
   ],
   bargain: [
-    "🤝 **Price Negotiation Feature:**\n\nYes! SLS has a built-in **Bargaining System** — here's how it works:\n\n1. Find your service and create/view a booking\n2. Click **Negotiate Price** on the booking detail page\n3. Enter your offer amount (up to 40% off listed price)\n4. The provider can accept, counter, or reject\n5. Up to **5 rounds** of negotiation allowed\n\nOur AI also suggests fair prices to help both parties reach a deal faster! Want to know more?",
+    "🤝 **Price Negotiation Feature:**\n\nYes! FixBudddy has a built-in **Bargaining System** — here's how it works:\n\n1. Find your service and create/view a booking\n2. Click **Negotiate Price** on the booking detail page\n3. Enter your offer amount (up to 40% off listed price)\n4. The provider can accept, counter, or reject\n5. Up to **5 rounds** of negotiation allowed\n\nOur AI also suggests fair prices to help both parties reach a deal faster! Want to know more?",
   ],
   provider: [
     "🔍 **Finding the Right Provider:**\n\nUse our smart search to filter by:\n• 📍 **Location** — within your area\n• ⭐ **Rating** — minimum star rating\n• 💰 **Price range** — set your budget\n• 🏷️ **Category** — plumber, electrician, cleaner, etc.\n• 📅 **Availability** — specific date/time\n\nAll providers are **verified and background-checked**. You can read reviews from real customers before booking. What type of service are you looking for?",
@@ -66,7 +66,7 @@ const RESPONSES = {
     "⭐ **Reviews & Ratings:**\n\nAfter a service is completed, you'll receive a prompt to **rate and review** the provider:\n\n• Rate from 1–5 stars\n• Write a detailed review (optional)\n• Reviews are verified — only actual customers can review\n• Providers can respond to reviews\n\nYour feedback helps other customers make informed choices! To leave a review, go to **My Bookings** → Completed → **Leave Review**.",
   ],
   support: [
-    "🆘 **Need Human Support?**\n\nI can connect you with our team via:\n\n• 📧 **Email** — support@sls.com (24hr response)\n• 📞 **Phone** — +91 1800-XXX-XXXX (9AM–6PM IST)\n• 💬 **Live Chat** — Click the 'Human' button above for an agent\n\nOr describe your issue here and I'll try to resolve it first. What's the problem?",
+    "🆘 **Need Human Support?**\n\nI can connect you with our team via:\n\n• 📧 **Email** — support@FixBuddy.com (24hr response)\n• 📞 **Phone** — +91 1800-XXX-XXXX (9AM–6PM IST)\n• 💬 **Live Chat** — Click the 'Human' button above for an agent\n\nOr describe your issue here and I'll try to resolve it first. What's the problem?",
   ],
 };
 
@@ -129,7 +129,7 @@ exports.chat = async ({ message, sessionId, userId }) => {
       user: userId || null,
       messages: [{
         role:    'system',
-        content: 'You are SLS Assistant, a helpful AI for a local services marketplace. Help users with bookings, payments, providers, and account queries.',
+        content: 'You are FixBuddy Assistant, a helpful AI for a local services marketplace. Help users with bookings, payments, providers, and account queries.',
       }],
     });
   }

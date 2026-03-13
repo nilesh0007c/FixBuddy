@@ -23,11 +23,11 @@ const { initSocket } = require('./socket');
 // Routes
 const authRoutes = require('./routes/authRoutes');
 const providerRoutes = require('./routes/providerRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const bargainRoutes = require('./routes/bargainRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const chatbotRoutes = require('./routes/chatbotRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const complaintRoutes = require('./routes/complaintRoutes');
 
@@ -94,11 +94,11 @@ app.use(globalLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/providers', providerRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/bargain', bargainRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/complaints', complaintRoutes);
 
