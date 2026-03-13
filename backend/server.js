@@ -66,11 +66,13 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: "*",
+  origin: [
+    "https://fixbuddyfrontend.onrender.com",
+    "http://localhost:3000"
+  ],
   methods: ["GET","POST","PUT","DELETE"],
   credentials: true
 }));
-
 app.use(compression());
 
 app.use(express.json({ limit: '10kb' }));

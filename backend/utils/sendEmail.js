@@ -13,7 +13,7 @@ const sendEmail = async (to, subject, html, attachments) => {
     });
 
     await transporter.sendMail({
-      from: `"Smart Services" <${process.env.EMAIL_USER}>`,
+      from: `"FixBuddy" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       html,
