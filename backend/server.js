@@ -67,7 +67,7 @@ app.use(helmet({
 
 app.use(cors({
   origin: [
-    "https://fixbuddy-ywb4.onrender.com",
+    "https://fixbuddyfrontend.onrender.com",
     "http://localhost:3000"
   ],
   methods: ["GET","POST","PUT","DELETE"],
