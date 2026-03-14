@@ -7,7 +7,10 @@ const sendEmail       = require('../utils/sendEmail');
 const generateInvoice = require('../utils/generateInvoice');
 const templates       = require('../utils/emailTemplates');
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// =============================================================================
+// HELPERS
+// =============================================================================
+
 const formatDate = (d) =>
   d
     ? new Intl.DateTimeFormat('en-IN', {
@@ -16,18 +19,11 @@ const formatDate = (d) =>
     : 'TBD';
 
 /**
- * safeSendEmail — NEVER throws.
- *
- * ROOT CAUSE FIX: Previously, any SMTP error / missing address caused the entire
- * controller to throw, which meant:
- *   (a) the DB write appeared to fail from the client's perspective
- *   (b) subsequent emails in the same function were never sent
- *
- * Now each email is fully isolated. Failures are logged with enough detail to
- * debug SMTP config without breaking the API response.
+ * safeSendEmail — never throws.
+ * Validates the address before attempting, logs success/failure clearly.
  */
 const safeSendEmail = async (to, subject, html, attachments) => {
-  if (!to || !to.toString().includes('@')) {
+  if (!to || !String(to).includes('@')) {
     console.warn(`[EMAIL SKIPPED] invalid address: "${to}" | subject: "${subject}"`);
     return;
   }
@@ -38,6 +34,17 @@ const safeSendEmail = async (to, subject, html, attachments) => {
     console.error(`[EMAIL FAILED] ❌  → ${to}  |  ${subject}`);
     console.error(`               reason: ${err.message}`);
   }
+};
+
+/**
+ * fetchCustomer — always fetch the full User document.
+ * req.user from JWT middleware only carries _id (and role).
+ * It never carries name, email, or phone — those must come from the DB.
+ */
+const fetchCustomer = async (userId) => {
+  const customer = await User.findById(userId);
+  if (!customer) throw new Error(`User not found for id: ${userId}`);
+  return customer;
 };
 
 
@@ -72,8 +79,8 @@ exports.createBooking = async (req, res, next) => {
       status:      'pending',
     });
 
-    // Fetch full customer document — req.user may only have _id + name from JWT
-    const customer = await User.findById(req.user._id);
+    // ── Fetch full customer document ──────────────────────────────────────────
+    const customer = await fetchCustomer(req.user._id);
 
     const formattedDate = formatDate(scheduledDate);
     const bookingId     = booking._id.toString();
@@ -85,22 +92,21 @@ exports.createBooking = async (req, res, next) => {
     // ── Email: Customer ───────────────────────────────────────────────────────
     await safeSendEmail(
       customer.email,
-      `Booking Request Sent - ${serviceName}`,
+      `Booking Request Sent — ${serviceName}`,
       templates.bookingSubmittedCustomer({
         customerName:  customer.name,
         serviceName,
-        providerName:  provider.name || 'Your Provider',
+        providerName:  provider.name  || 'Your Provider',
         scheduledDate: formattedDate,
-        scheduledTime: scheduledTime || 'TBD',
+        scheduledTime: scheduledTime  || 'TBD',
         bookingId,
       })
     );
 
     // ── Email: Provider ───────────────────────────────────────────────────────
-    // provider.email is a required field on Provider schema — always present.
     await safeSendEmail(
       provider.email,
-      `New Booking Request - ${serviceName}`,
+      `New Booking Request — ${serviceName}`,
       templates.newBookingProvider({
         providerName:  provider.name  || 'Provider',
         customerName:  customer.name,
@@ -177,12 +183,9 @@ exports.getProviderBookings = async (req, res, next) => {
 // =============================================================================
 exports.updateBookingStatus = async (req, res, next) => {
   try {
-    // Must populate both:
-    //  · 'user'     → customer's name, email, phone  (lives on User model)
-    //  · 'provider' → provider's name, email, phone  (live directly on Provider model)
     const booking = await Booking.findById(req.params.id)
-      .populate('user')
-      .populate('provider');
+      .populate('user')      // full customer document
+      .populate('provider'); // full provider document
 
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -197,8 +200,8 @@ exports.updateBookingStatus = async (req, res, next) => {
     await booking.save();
 
     // ── Shortcuts ─────────────────────────────────────────────────────────────
-    const customer      = booking.user;       // User document
-    const provider      = booking.provider;   // Provider document (has own .email/.phone)
+    const customer      = booking.user;      // populated User document
+    const provider      = booking.provider;  // populated Provider document
     const serviceName   = booking.service?.name || 'Service';
     const bookingId     = booking._id.toString();
     const scheduledDate = formatDate(booking.scheduledDate);
@@ -217,16 +220,12 @@ exports.updateBookingStatus = async (req, res, next) => {
     }
 
     // ── Email matrix ──────────────────────────────────────────────────────────
-    // PREVIOUSLY MISSING: only customer was emailed. Provider received nothing
-    // after their own accept/reject/complete action. Now both sides are notified.
-    // ─────────────────────────────────────────────────────────────────────────
     switch (booking.status) {
 
       case 'accepted':
-        // Customer: booking confirmed
         await safeSendEmail(
           customer.email,
-          `Booking Confirmed - ${serviceName}`,
+          `Booking Confirmed — ${serviceName}`,
           templates.bookingAcceptedCustomer({
             customerName:  customer.name,
             serviceName,
@@ -237,10 +236,9 @@ exports.updateBookingStatus = async (req, res, next) => {
             bookingId,
           })
         );
-        // Provider: receipt confirming they accepted
         await safeSendEmail(
           provider.email,
-          `You Accepted a Booking - ${serviceName}`,
+          `You Accepted a Booking — ${serviceName}`,
           templates.providerAcceptedReceipt({
             providerName:  provider.name  || 'Provider',
             customerName:  customer.name,
@@ -254,20 +252,18 @@ exports.updateBookingStatus = async (req, res, next) => {
         break;
 
       case 'rejected':
-        // Customer: not accepted, find another provider
         await safeSendEmail(
           customer.email,
-          `Booking Not Accepted - ${serviceName}`,
+          `Booking Not Accepted — ${serviceName}`,
           templates.bookingRejectedCustomer({
             customerName: customer.name,
             serviceName,
             bookingId,
           })
         );
-        // Provider: confirmation they rejected
         await safeSendEmail(
           provider.email,
-          `Booking Rejected - ${serviceName}`,
+          `Booking Rejected — ${serviceName}`,
           templates.providerRejectedReceipt({
             providerName: provider.name || 'Provider',
             customerName: customer.name,
@@ -278,10 +274,9 @@ exports.updateBookingStatus = async (req, res, next) => {
         break;
 
       case 'completed':
-        // Customer: job done + invoice attached
         await safeSendEmail(
           customer.email,
-          `Service Completed - ${serviceName}`,
+          `Service Completed — ${serviceName}`,
           templates.bookingCompletedCustomer({
             customerName: customer.name,
             serviceName,
@@ -291,10 +286,9 @@ exports.updateBookingStatus = async (req, res, next) => {
           }),
           attachments.length > 0 ? attachments : undefined
         );
-        // Provider: job summary with earnings
         await safeSendEmail(
           provider.email,
-          `Job Completed - ${serviceName}`,
+          `Job Completed — ${serviceName}`,
           templates.bookingCompletedProvider({
             providerName:  provider.name || 'Provider',
             customerName:  customer.name,
@@ -344,14 +338,14 @@ exports.updateBookingStatus = async (req, res, next) => {
 // =============================================================================
 exports.cancelBooking = async (req, res, next) => {
   try {
+    // ── Fetch full customer document ──────────────────────────────────────────
+    // req.user only carries _id from the JWT — never name, email or phone.
+    const customer = await fetchCustomer(req.user._id);
+
     const booking = await Booking.findOne({
       _id:  req.params.id,
       user: req.user._id,
-    })
-    // BUG WAS HERE: .populate('Provider') — capital P silently skips populate
-    // because Mongoose matches the schema PATH name ('provider', lowercase).
-    // Result: booking.provider was always undefined → email never sent → TypeError
-    .populate('provider'); // ← fixed: matches the exact path name in bookingSchema
+    }).populate('provider'); // lowercase 'provider' — matches the schema path exactly
 
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
@@ -372,26 +366,25 @@ exports.cancelBooking = async (req, res, next) => {
     if (booking.provider) {
       await safeSendEmail(
         booking.provider.email,
-        `Booking Cancelled - ${serviceName}`,
+        `Booking Cancelled — ${serviceName}`,
         templates.bookingCancelledProvider({
           providerName:  booking.provider.name || 'Provider',
-          customerName:  req.user.name,
+          customerName:  customer.name,
           serviceName,
           scheduledDate,
           bookingId,
         })
       );
     } else {
-      // Provider populate failed — means the stored provider ObjectId is stale/missing
       console.warn(`[CANCEL] booking.provider is null for booking ${bookingId} — check DB integrity`);
     }
 
-    // ── Email: Customer (cancellation receipt) ────────────────────────────────
+    // ── Email: Customer ───────────────────────────────────────────────────────
     await safeSendEmail(
-      req.user.email,
-      `Cancellation Confirmed - ${serviceName}`,
+      customer.email,
+      `Cancellation Confirmed — ${serviceName}`,
       templates.bookingCancelledCustomer({
-        customerName: req.user.name,
+        customerName: customer.name,
         serviceName,
         bookingId,
       })
@@ -401,7 +394,7 @@ exports.cancelBooking = async (req, res, next) => {
     if (global.io && booking.provider?._id) {
       global.io.to(`provider_${booking.provider._id}`).emit('booking_cancelled', {
         bookingId,
-        message: `${req.user.name} cancelled the booking for ${serviceName}`,
+        message: `${customer.name} cancelled the booking for ${serviceName}`,
       });
     }
 
